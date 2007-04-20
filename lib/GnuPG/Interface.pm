@@ -28,7 +28,7 @@ use IO::Handle;
 use GnuPG::Options;
 use GnuPG::Handles;
 
-$VERSION = '0.34';
+$VERSION = '0.35';
 
 use Class::MethodMaker
   get_set         => [ qw( call  passphrase ) ],
@@ -543,7 +543,7 @@ sub get_keys
 	    
 	    $current_key->push_subkeys( $current_signed_item );
 	}
-	else
+	elsif ( $record_type ne 'tru' )
 	{
 	    warn "unknown record type $record_type"; 
 	}
