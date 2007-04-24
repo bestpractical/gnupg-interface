@@ -10,8 +10,6 @@
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-#  $Id: Interface.pm,v 1.45 2002/09/26 15:51:10 ftobin Exp $
-#
 
 package GnuPG::Interface;
 
@@ -1284,12 +1282,8 @@ L<perlipc/"Bidirectional Communication with Another Process">
 
 =head1 AUTHOR
 
-Frank J. Tobin, ftobin@cpan.org
+GnuPg::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.  
 
-=head1 PACKAGE UPDATES
-
-Package updates may be found on
-http://GnuPG-Interface.sourceforge.net/
-or CPAN, http://www.cpan.org/.
+Frank J. Tobin, ftobin@cpan.org was the original author of the package.
 
 =cut

@@ -1,8 +1,11 @@
 0.35 Fri Apr 20 12:33:53 EDT 2007 - Jesse Vincent <jesse@bestpractical.com>
- 
+
+    * New Maintainer: Jesse Vincent <jesse@bestpractical.com> took over
+      maintenance of this module.
+
     * Removed test key expiry dates. (Fixes http://rt.cpan.org/Ticket/Display.html?id=17618)
     * Applied secret key output patch for modern GPG from http://rt.cpan.org/Ticket/Display.html?id=17619
-    * Applied patch to support tru record types from (http://search.cpan.org/src/JRED/Mail-GPG-1.0.6/patches/)
+    * Applied patch to support 'tru' record types from (http://search.cpan.org/src/JRED/Mail-GPG-1.0.6/patches/)
 
 2002-09-26 15:47  ftobin
 
