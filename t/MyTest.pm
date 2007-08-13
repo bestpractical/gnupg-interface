@@ -16,7 +16,7 @@
 package MyTest;
 
 use strict;
-use English;
+use English qw( -no_match_vars );
 use Exporter;
 use IO::File;
 use vars qw( @ISA @EXPORT );

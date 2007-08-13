@@ -1,4 +1,4 @@
-#  Interface.pm
+#  Jnterface.pm
 #    - providing an object-oriented approach to interacting with GnuPG
 #
 #  Copyright (C) 2000 Frank J. Tobin <ftobin@cpan.org>
@@ -14,7 +14,7 @@
 package GnuPG::Interface;
 
 use strict;
-use English;
+use English qw( -no_match_vars );
 use Carp;
 use Fcntl;
 use vars qw( $VERSION );
@@ -26,7 +26,7 @@ use IO::Handle;
 use GnuPG::Options;
 use GnuPG::Handles;
 
-$VERSION = '0.35';
+$VERSION = '0.36';
 
 use Class::MethodMaker
   get_set         => [ qw( call  passphrase ) ],

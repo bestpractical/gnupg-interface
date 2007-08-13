@@ -1,3 +1,10 @@
+0.36 Mon Aug 13 12:16:38 EDT 2007
+
+    * [rt.cpan.org #28814] - Performance improvement from mehradek (Radoslaw Zielinski)
+        -use English;
+        +use English qw( -no_match_vars );
+
+
 0.35 Fri Apr 20 12:33:53 EDT 2007 - Jesse Vincent <jesse@bestpractical.com>
 
     * New Maintainer: Jesse Vincent <jesse@bestpractical.com> took over

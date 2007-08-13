@@ -14,7 +14,7 @@
 #
 
 use strict;
-use English;
+use English qw( -no_match_vars );
 use Fatal qw/ open close /;
 use IO::File;
 use IO::Handle;

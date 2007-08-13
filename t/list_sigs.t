@@ -3,7 +3,7 @@
 # $Id: list_sigs.t,v 1.7 2001/05/03 06:00:06 ftobin Exp $
 
 use strict;
-use English;
+use English qw( -no_match_vars );
 
 use lib './t';
 use MyTest;
