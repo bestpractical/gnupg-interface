@@ -40,7 +40,7 @@ WriteMakefile
     VERSION_FROM => File::Spec->catfile( $gnupg_base, 'Interface.pm' ),
     
     PREREQ_PM    => {
-		     'Class::MethodMaker' => 1.00,
+		     'Moose' => 0.61,
 		    },
     
     PM           => { %pm_install_hash },

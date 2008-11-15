@@ -14,13 +14,13 @@
 #
 
 package GnuPG::SubKey;
+use Moose;
+BEGIN { extends qw( GnuPG::Key ) }
 
-use strict;
-
-use base qw( GnuPG::Key );
-
-use Class::MethodMaker
-  get_set => [ qw( validity   owner_trust  local_id  signature ) ];
+has [qw( validity   owner_trust  local_id  signature )] => (
+    isa => 'Any',
+    is  => 'rw',
+);
 
 1;
 
@@ -48,11 +48,6 @@ from GnuPG::Key, which are not described here, but rather
 in L<GnuPG::Key>.
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-L<Class::MethodMaker/"object">, or L<Class::MethodMaker/"list">.
-Please read there for more information.
 
 =over 4
 
@@ -82,6 +77,5 @@ signature on this key.
 
 L<GnuPG::Key>,
 L<GnuPG::Signature>,
-L<Class::MethodMaker>
 
 =cut

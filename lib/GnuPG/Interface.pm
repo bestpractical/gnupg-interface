@@ -12,8 +12,9 @@
 #
 
 package GnuPG::Interface;
+use Moose;
+with qw(GnuPG::HashInit);
 
-use strict;
 use English qw( -no_match_vars );
 use Carp;
 use Fcntl;
@@ -28,728 +29,670 @@ use GnuPG::Handles;
 
 $VERSION = '0.36';
 
-use Class::MethodMaker
-  get_set         => [ qw( call  passphrase ) ],
-  object          => [ qw( GnuPG::Options  options ) ],
-  new_with_init   => 'new',
-  new_hash_init   => 'hash_init';
+has $_ => (
+    isa     => 'Any',
+    is      => 'rw',
+    clearer => 'clear_' . $_,
+) for qw(call passphrase);
+
+has options => (
+    isa        => 'GnuPG::Options',
+    is         => 'rw',
+    lazy_build => 1,
+);
+
+sub _build_options { GnuPG::Options->new() }
 
 # deprecated!
-sub gnupg_call
-{
-    my ( $self, $v ) = @_;
-    $self->call( $v ) if defined $v;
-    return $self->call();
+sub gnupg_call { shift->call(@_); }
+
+sub BUILD {
+    my ( $self, $args ) = @_;
+
+    $self->hash_init( call => 'gpg' );
+    $self->hash_init(%$args);
 }
 
-
-sub init( $% )
-{
-    my ( $self, %args ) = @_;
-    
-    $self->hash_init( call => 'gpg' ),
-    $self->hash_init( %args );
-}
-
-
-struct ( fh_setup => { parent_end       => '$', child_end      => '$',
-		       direct           => '$', is_std         => '$',
-		       parent_is_source => '$', name_shows_dup => '$',
-		     }
-       );
+struct(
+    fh_setup => {
+        parent_end       => '$', child_end      => '$',
+        direct           => '$', is_std         => '$',
+        parent_is_source => '$', name_shows_dup => '$',
+    }
+);
 
 1;
 
 #################################################################
 # real worker functions
 
-
 # This function does any 'extra' stuff that the user might
 # not want to handle himself, such as passing in the passphrase
-sub wrap_call( $% )
-{
+sub wrap_call( $% ) {
     my ( $self, %args ) = @_;
-    
+
     my $handles = $args{handles}
-    or croak 'error: no handles defined';
-    
-    $handles->stdin(  '<&STDIN'  ) unless $handles->stdin();
-    $handles->stdout( '>&STDOUT' ) unless $handles->stdout();
-    $handles->stderr( '>&STDERR' ) unless $handles->stderr();
-    
+        or croak 'error: no handles defined';
+
+    $handles->stdin('<&STDIN')   unless $handles->stdin();
+    $handles->stdout('>&STDOUT') unless $handles->stdout();
+    $handles->stderr('>&STDERR') unless $handles->stderr();
+
     # so call me sexist; English just doen't cope well
-    my $needs_passphrase_handled_for_him =
-      ( $self->passphrase() and not $handles->passphrase() )
-	? 1 : 0;
-    
-    if ( $needs_passphrase_handled_for_him )
-    {
-	$handles->passphrase( IO::Handle->new() );
+    my $needs_passphrase_handled_for_him
+        = ( $self->passphrase() and not $handles->passphrase() ) ? 1 : 0;
+
+    if ($needs_passphrase_handled_for_him) {
+        $handles->passphrase( IO::Handle->new() );
     }
-    
-    my $pid = $self->fork_attach_exec( %args );
-    
-    if ( $needs_passphrase_handled_for_him )
-    {
-	my $passphrase_handle = $handles->passphrase();
-	print $passphrase_handle $self->passphrase();
-	close $passphrase_handle;
-	
-	# We put this in in case the user wants to re-use this object
-	$handles->clear_passphrase();
+
+    my $pid = $self->fork_attach_exec(%args);
+
+    if ($needs_passphrase_handled_for_him) {
+        my $passphrase_handle = $handles->passphrase();
+        print $passphrase_handle $self->passphrase();
+        close $passphrase_handle;
+
+        # We put this in in case the user wants to re-use this object
+        $handles->clear_passphrase();
     }
-    
+
     return $pid;
 }
-
-
-
 
 # does does command-line creation, forking, and execcing
 # the reasing cli creation is done here is because we should
 # fork before finding the fd's for stuff like --status-fd
-sub fork_attach_exec( $% )
-{
+sub fork_attach_exec( $% ) {
     my ( $self, %args ) = @_;
-    
+
     my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
-    
+
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
-    
-    my @commands = ref $args{commands}
-      ? @{ $args{commands} } : ( $args{commands} )
-	or croak "no gnupg commands passed";
-    
+
+    my @commands
+        = ref $args{commands} ? @{ $args{commands} } : ( $args{commands} )
+        or croak "no gnupg commands passed";
+
     # deprecation support
     $args{command_args} ||= $args{gnupg_command_args};
-    
-    my @command_args = ref $args{command_args}
-      ? @{ $args{command_args} } : ( $args{command_args } || () );
-    
+
+    my @command_args
+        = ref $args{command_args}
+        ? @{ $args{command_args} }
+        : ( $args{command_args} || () );
+
     my %fhs;
-    foreach my $fh_name ( qw( stdin stdout stderr status
-			      logger passphrase command
-			    )
-			)
-    {
-	my $fh = $handles->$fh_name() or next;
-	$fhs{$fh_name} = fh_setup->new();
-	$fhs{$fh_name}->parent_end( $fh );
+    foreach my $fh_name (
+        qw( stdin stdout stderr status
+        logger passphrase command
+        )
+        ) {
+        my $fh = $handles->$fh_name() or next;
+        $fhs{$fh_name} = fh_setup->new();
+        $fhs{$fh_name}->parent_end($fh);
     }
-    
-    foreach my $fh_name ( qw( stdin stdout stderr ) )
-    {
-	$fhs{$fh_name}->is_std( 1 );
+
+    foreach my $fh_name (qw( stdin stdout stderr )) {
+        $fhs{$fh_name}->is_std(1);
     }
-    
-    foreach my $fh_name ( qw( stdin passphrase command ) )
-    {
-	my $entry = $fhs{$fh_name} or next;
-	$entry->parent_is_source( 1 );
+
+    foreach my $fh_name (qw( stdin passphrase command )) {
+        my $entry = $fhs{$fh_name} or next;
+        $entry->parent_is_source(1);
     }
-    
+
     # Below is code derived heavily from
     # Marc Horowitz's IPC::Open3, a base Perl module
-    foreach my $fh_name ( keys %fhs )
-    {
-	my $entry = $fhs{$fh_name};
-	
-	my $parent_end = $entry->parent_end();
-	my $name_shows_dup = ( $parent_end =~ s/^[<>]&// );
-	$entry->parent_end( $parent_end );
-	
-	$entry->name_shows_dup( $name_shows_dup );
-	
-	$entry->direct( $name_shows_dup
-			|| $handles->options( $fh_name )->{direct}
-			|| 0
-		      );
-    }
-    
-    foreach my $fh_name ( keys %fhs )
-    {
-	$fhs{$fh_name}->child_end( IO::Handle->new() );
-    }
-    
-    foreach my $fh_name ( keys %fhs )
-    {
-	my $entry = $fhs{$fh_name};
-	next if $entry->direct();
-	
-	my $reader_end;
-	my $writer_end;
-	if ( $entry->parent_is_source() )
-	{
-	    $reader_end = $entry->child_end();
-	    $writer_end = $entry->parent_end();
-	}
-	else
-	{
-	    $reader_end = $entry->parent_end();
-	    $writer_end = $entry->child_end();
-	}
-	
-	pipe $reader_end, $writer_end;
-    }
-    
-    my $pid = fork;
-    
-    die "fork failed: $ERRNO" unless defined $pid;
-    
-    if ( $pid == 0 )		# child
-    {
-	# these are for safety later to help lessen autovifying,
-	# speed things up, and make the code smaller
-	my $stdin       = $fhs{stdin};
-	my $stdout      = $fhs{stdout};
-	my $stderr      = $fhs{stderr};
-	
-	# Paul Walmsley says:
-	# Perl 5.6's POSIX.pm has a typo in it that prevents us from
-	# importing STDERR_FILENO. So we resort to requiring it.
-	require POSIX; 
+    foreach my $fh_name ( keys %fhs ) {
+        my $entry = $fhs{$fh_name};
 
-	my $standard_out = IO::Handle->new_from_fd( &POSIX::STDOUT_FILENO, 'w' );
-	my $standard_in  = IO::Handle->new_from_fd( &POSIX::STDIN_FILENO,  'r' );
-	
-	# Paul Walmsley says:
-	# this mess is due to a typo in POSIX.pm on Perl 5.6
-	my $stderr_fd = eval { &POSIX::STDERR_FILENO };
-	$stderr_fd = 2 unless defined $stderr_fd;
-	my $standard_err = IO::Handle->new_from_fd ($stderr_fd, 'w');
-	
-	# If she wants to dup the kid's stderr onto her stdout I need to
-	# save a copy of her stdout before I put something else there.
-	if ( $stdout->parent_end() ne $stderr->parent_end()
-	     and $stderr->direct()
-	     and my_fileno( $stderr->parent_end() ) == my_fileno( $standard_out ) )
-	{
-	    my $tmp = IO::Handle->new();
-	    open $tmp, '>&' . my_fileno( $stderr->parent_end() );
-	    $stderr->parent_end( $tmp );
-	}
-	
-	if ( $stdin->direct() )
-	{
-	    open $standard_in, '<&' . my_fileno( $stdin->parent_end() )
-	      unless
-		my_fileno( $standard_in ) == my_fileno( $stdin->parent_end() );
-	}
-	else
-	{
-	    close $stdin->parent_end();
-	    open $standard_in, '<&=' . my_fileno( $stdin->child_end() );
-	}
-	
-	if ( $stdout->direct() )
-	{
-	    open $standard_out, '>&' . my_fileno( $stdout->parent_end() )
-	      unless
-		my_fileno( $standard_out ) == my_fileno( $stdout->parent_end() );
-	}
-	else
-	{
-	    close $stdout->parent_end();
-	    open $standard_out, '>&=' . my_fileno( $stdout->child_end() );
-	}
-	
-	if ( $stdout->parent_end() ne $stderr->parent_end() )
-	{
-	    # I have to use a fileno here because in this one case
-	    # I'm doing a dup but the filehandle might be a reference
-	    # (from the special case above).
-	    if ( $stderr->direct() )
-	    {
-		open $standard_err, '>&' . my_fileno( $stderr->parent_end() )
-		  unless
-		    my_fileno( $standard_err )
-		      == my_fileno( $stderr->parent_end() );
-	    }
-	    else
-	    {
-		close $stderr->parent_end();
-		open $standard_err, '>&=' . my_fileno( $stderr->child_end() );
-	    }
-	}
-	else
-	{
-	    open $standard_err, '>&STDOUT'
-	      unless my_fileno( $standard_err ) == my_fileno( $standard_out );
-	}
-	
-	foreach my $fh_name ( keys %fhs )
-	{
-	    my $entry = $fhs{$fh_name};
-	    next if $entry->is_std();
-	    
-	    my $parent_end = $entry->parent_end();
-	    my $child_end  = $entry->child_end();
-	    
-	    if ( $entry->direct() )
-	    {
-		if ( $entry->name_shows_dup() )
-		{
-		    my $open_prefix = $entry->parent_is_source() ? '<&' : '>&';
-		    open $child_end, $open_prefix . $parent_end;
-		}
-		else
-		{
-		    $child_end = $parent_end;
-		    $entry->child_end( $child_end );
-		}
-	    }
-	    else
-	    {
-		close $parent_end;
-	    }
-	    
-	    # we want these fh's to stay open after the exec
-	    fcntl $child_end, F_SETFD, 0;
-	    
-	    # now set the options for the call to GnuPG
-	    my $fileno = my_fileno( $child_end );
-	    my $option = $fh_name . '_fd';
-	    $self->options->$option( $fileno );
-	}
-	
-	
-	my @command = ( $self->call(), $self->options->get_args(),
-			@commands,     @command_args );
-	
-	exec @command or die "exec() error: $ERRNO";
+        my $parent_end = $entry->parent_end();
+        my $name_shows_dup = ( $parent_end =~ s/^[<>]&// );
+        $entry->parent_end($parent_end);
+
+        $entry->name_shows_dup($name_shows_dup);
+
+        $entry->direct( $name_shows_dup
+                || $handles->options($fh_name)->{direct}
+                || 0 );
     }
-    
+
+    foreach my $fh_name ( keys %fhs ) {
+        $fhs{$fh_name}->child_end( IO::Handle->new() );
+    }
+
+    foreach my $fh_name ( keys %fhs ) {
+        my $entry = $fhs{$fh_name};
+        next if $entry->direct();
+
+        my $reader_end;
+        my $writer_end;
+        if ( $entry->parent_is_source() ) {
+            $reader_end = $entry->child_end();
+            $writer_end = $entry->parent_end();
+        }
+        else {
+            $reader_end = $entry->parent_end();
+            $writer_end = $entry->child_end();
+        }
+
+        pipe $reader_end, $writer_end;
+    }
+
+    my $pid = fork;
+
+    die "fork failed: $ERRNO" unless defined $pid;
+
+    if ( $pid == 0 )    # child
+    {
+
+        # these are for safety later to help lessen autovifying,
+        # speed things up, and make the code smaller
+        my $stdin  = $fhs{stdin};
+        my $stdout = $fhs{stdout};
+        my $stderr = $fhs{stderr};
+
+        # Paul Walmsley says:
+        # Perl 5.6's POSIX.pm has a typo in it that prevents us from
+        # importing STDERR_FILENO. So we resort to requiring it.
+        require POSIX;
+
+        my $standard_out
+            = IO::Handle->new_from_fd( &POSIX::STDOUT_FILENO, 'w' );
+        my $standard_in
+            = IO::Handle->new_from_fd( &POSIX::STDIN_FILENO, 'r' );
+
+        # Paul Walmsley says:
+        # this mess is due to a typo in POSIX.pm on Perl 5.6
+        my $stderr_fd = eval {&POSIX::STDERR_FILENO};
+        $stderr_fd = 2 unless defined $stderr_fd;
+        my $standard_err = IO::Handle->new_from_fd( $stderr_fd, 'w' );
+
+        # If she wants to dup the kid's stderr onto her stdout I need to
+        # save a copy of her stdout before I put something else there.
+        if (    $stdout->parent_end() ne $stderr->parent_end()
+            and $stderr->direct()
+            and my_fileno( $stderr->parent_end() )
+            == my_fileno($standard_out) ) {
+            my $tmp = IO::Handle->new();
+            open $tmp, '>&' . my_fileno( $stderr->parent_end() );
+            $stderr->parent_end($tmp);
+        }
+
+        if ( $stdin->direct() ) {
+            open $standard_in, '<&' . my_fileno( $stdin->parent_end() )
+                unless my_fileno($standard_in)
+                    == my_fileno( $stdin->parent_end() );
+        }
+        else {
+            close $stdin->parent_end();
+            open $standard_in, '<&=' . my_fileno( $stdin->child_end() );
+        }
+
+        if ( $stdout->direct() ) {
+            open $standard_out, '>&' . my_fileno( $stdout->parent_end() )
+                unless my_fileno($standard_out)
+                    == my_fileno( $stdout->parent_end() );
+        }
+        else {
+            close $stdout->parent_end();
+            open $standard_out, '>&=' . my_fileno( $stdout->child_end() );
+        }
+
+        if ( $stdout->parent_end() ne $stderr->parent_end() ) {
+
+            # I have to use a fileno here because in this one case
+            # I'm doing a dup but the filehandle might be a reference
+            # (from the special case above).
+            if ( $stderr->direct() ) {
+                open $standard_err, '>&' . my_fileno( $stderr->parent_end() )
+                    unless my_fileno($standard_err)
+                        == my_fileno( $stderr->parent_end() );
+            }
+            else {
+                close $stderr->parent_end();
+                open $standard_err, '>&=' . my_fileno( $stderr->child_end() );
+            }
+        }
+        else {
+            open $standard_err, '>&STDOUT'
+                unless my_fileno($standard_err) == my_fileno($standard_out);
+        }
+
+        foreach my $fh_name ( keys %fhs ) {
+            my $entry = $fhs{$fh_name};
+            next if $entry->is_std();
+
+            my $parent_end = $entry->parent_end();
+            my $child_end  = $entry->child_end();
+
+            if ( $entry->direct() ) {
+                if ( $entry->name_shows_dup() ) {
+                    my $open_prefix
+                        = $entry->parent_is_source() ? '<&' : '>&';
+                    open $child_end, $open_prefix . $parent_end;
+                }
+                else {
+                    $child_end = $parent_end;
+                    $entry->child_end($child_end);
+                }
+            }
+            else {
+                close $parent_end;
+            }
+
+            # we want these fh's to stay open after the exec
+            fcntl $child_end, F_SETFD, 0;
+
+            # now set the options for the call to GnuPG
+            my $fileno = my_fileno($child_end);
+            my $option = $fh_name . '_fd';
+            $self->options->$option($fileno);
+        }
+
+        my @command = (
+            $self->call(), $self->options->get_args(),
+            @commands,     @command_args
+        );
+
+        exec @command or die "exec() error: $ERRNO";
+    }
+
     # parent
-    
+
     # close the child end of any pipes (non-direct stuff)
-    foreach my $fh_name ( keys %fhs )
-    {
-	my $entry = $fhs{$fh_name};
-	close $entry->child_end() unless $entry->direct();
+    foreach my $fh_name ( keys %fhs ) {
+        my $entry = $fhs{$fh_name};
+        close $entry->child_end() unless $entry->direct();
     }
-    
-    
-    foreach my $fh_name ( keys %fhs )
-    {
-	my $entry = $fhs{$fh_name};
-	next unless $entry->parent_is_source();
-	
-	my $parent_end = $entry->parent_end();
-	
-	# close any writing handles if they were a dup
-	#any real reason for this?  It bombs if we're doing
-	#the automagic >& stuff.
-	#close $parent_end if $entry->direct();
-	
-	# unbuffer pipes
-	select( ( select( $parent_end ),  $OUTPUT_AUTOFLUSH = 1 )[0] )
-	  if $parent_end;
+
+    foreach my $fh_name ( keys %fhs ) {
+        my $entry = $fhs{$fh_name};
+        next unless $entry->parent_is_source();
+
+        my $parent_end = $entry->parent_end();
+
+        # close any writing handles if they were a dup
+        #any real reason for this?  It bombs if we're doing
+        #the automagic >& stuff.
+        #close $parent_end if $entry->direct();
+
+        # unbuffer pipes
+        select( ( select($parent_end), $OUTPUT_AUTOFLUSH = 1 )[0] )
+            if $parent_end;
     }
-    
+
     return $pid;
 }
 
-
-sub my_fileno
-{
+sub my_fileno {
     no strict 'refs';
-    my ( $fh ) = @_;
+    my ($fh) = @_;
     croak "fh is undefined" unless defined $fh;
-    return $1 if $fh =~ /^=?(\d+)$/;   # is it a fd in itself?
+    return $1 if $fh =~ /^=?(\d+)$/;    # is it a fd in itself?
     my $fileno = fileno $fh;
     croak "error determining fileno for $fh: $ERRNO" unless defined $fileno;
     return $fileno;
 }
 
-
 __END__
-
 
 ###################################################################
 
-
-sub get_public_keys ( $@ )
-{
-    my ( $self, @key_ids ) = @_;
-    
-    return $self->get_keys( commands     => [  '--list-public-keys' ],
-			    command_args => [ @key_ids ],
-			  );
-}
-
-
-
-sub get_secret_keys ( $@ )
-{
-    my ( $self, @key_ids ) = @_;
-    
-    return $self->get_keys( commands     => [ '--list-secret-keys' ],
-			    command_args => [ @key_ids ],
-			  );
-}
-
-
-
-sub get_public_keys_with_sigs ( $@ )
-{
+sub get_public_keys ( $@ ) {
     my ( $self, @key_ids ) = @_;
 
-    return $self->get_keys( commands     => [ '--list-sigs' ],
-			    command_args => [ @key_ids ],
-			  );
+    return $self->get_keys(
+        commands     => ['--list-public-keys'],
+        command_args => [@key_ids],
+    );
 }
 
+sub get_secret_keys ( $@ ) {
+    my ( $self, @key_ids ) = @_;
 
+    return $self->get_keys(
+        commands     => ['--list-secret-keys'],
+        command_args => [@key_ids],
+    );
+}
 
-sub get_keys
-{
+sub get_public_keys_with_sigs ( $@ ) {
+    my ( $self, @key_ids ) = @_;
+
+    return $self->get_keys(
+        commands     => ['--list-sigs'],
+        command_args => [@key_ids],
+    );
+}
+
+sub get_keys {
     my ( $self, %args ) = @_;
-    
+
     my $saved_options = $self->options();
     my $new_options   = $self->options->copy();
-    $self->options( $new_options );
-    $self->options->push_extra_args( '--with-colons',
-				     '--with-fingerprint',
-				     '--with-fingerprint',
-				   );
-    
+    $self->options($new_options);
+    $self->options->push_extra_args(
+        '--with-colons',
+        '--with-fingerprint',
+        '--with-fingerprint',
+    );
+
     my $stdin  = IO::Handle->new();
     my $stdout = IO::Handle->new();
-    
-    my $handles = GnuPG::Handles->new( stdin  => $stdin,
-				       stdout => $stdout,
-				     );
-    
-    my $pid = $self->wrap_call( handles => $handles,
-				%args,
-			      );
-    
+
+    my $handles = GnuPG::Handles->new(
+        stdin  => $stdin,
+        stdout => $stdout,
+    );
+
+    my $pid = $self->wrap_call(
+        handles => $handles,
+        %args,
+    );
+
     my @returned_keys;
     my $current_key;
     my $current_signed_item;
     my $current_fingerprinted_key;
-    
+
     require GnuPG::PublicKey;
     require GnuPG::SecretKey;
-    require GnuPG::SubKey; 
+    require GnuPG::SubKey;
     require GnuPG::Fingerprint;
-    require GnuPG::UserId; 
+    require GnuPG::UserId;
     require GnuPG::Signature;
-    
-    while ( <$stdout> )
-    {
-	my $line = $_;
-	chomp $line;
-	my @fields = split ':', $line;
-	next unless @fields > 3;
-	
-	my $record_type = $fields[0];
-	
-	if ( $record_type eq 'pub' or $record_type eq 'sec' )
-	{
-	    push @returned_keys, $current_key
-	      if $current_key;
-	    
-	    my ( $user_id_validity, $key_length, $algo_num, $hex_key_id,
-		 $creation_date_string, $expiration_date_string,
-		 $local_id, $owner_trust, $user_id_string )
-	      = @fields[1..$#fields];
-	    
-	    $current_key = $current_fingerprinted_key
-	      = $record_type eq 'pub'
-		? GnuPG::PublicKey->new()
-		  : GnuPG::SecretKey->new();
-	    
-	    $current_key->hash_init
-	      ( length                 => $key_length,
-		algo_num               => $algo_num,
-		hex_id                 => $hex_key_id,
-		local_id               => $local_id,
-		owner_trust            => $owner_trust,
-		creation_date_string   => $creation_date_string,
-		expiration_date_string => $expiration_date_string,
-	      );
-	    
-	    $current_signed_item = GnuPG::UserId->new
-	      ( validity   => $user_id_validity,
-		as_string  => $user_id_string,
-	      );
-	    
-	    $current_key->push_user_ids( $current_signed_item );
-	}
-	elsif ( $record_type eq 'fpr' )
-	{
-	    my $hex = $fields[9];
-	    my $f = GnuPG::Fingerprint->new( as_hex_string => $hex );
-	    $current_fingerprinted_key->fingerprint( $f );
-	}
-	elsif ( $record_type eq 'sig' )
-	{
-	    my ( $algo_num, $hex_key_id,
-		 $signature_date_string, $user_id_string )
-	      = @fields[3..5,9];
-	    
-	    my $signature = GnuPG::Signature->new
-	      ( algo_num        => $algo_num,
-		hex_id          => $hex_key_id,
-		date_string     => $signature_date_string,
-		user_id_string  => $user_id_string,
-	      );
-	    
-	    if ( $current_signed_item->isa( 'GnuPG::UserId' ) )
-	    {
-		$current_signed_item->push_signatures( $signature );
-	    }
-	    elsif ( $current_signed_item->isa( 'GnuPG::SubKey' ) )
-	    {
-		$current_signed_item->signature( $signature );
-	    }
-	    else
-	    {
-		warn "do not know how to handle signature line: $line\n";
-	    }
-	}
-	elsif ( $record_type eq 'uid' )
-	{
-	    my ( $validity, $user_id_string ) = @fields[1,9];
-	    
-	    $current_signed_item = GnuPG::UserId->new
-	      ( validity  => $validity,
-		as_string => $user_id_string,
-	      );
-	    
-	    $current_key->push_user_ids( $current_signed_item );
-	}
-	elsif ( $record_type eq 'sub' or $record_type eq 'ssb' )
-	{
-	    my ( $validity, $key_length, $algo_num, $hex_id,
-		 $creation_date_string, $expiration_date_string,
-		 $local_id )
-	      = @fields[1..7];
-	    
-	    $current_signed_item = $current_fingerprinted_key
-	      = GnuPG::SubKey->new
-		( validity               => $validity,
-		  length                 => $key_length,
-		  algo_num               => $algo_num,
-		  hex_id                 => $hex_id,
-		  creation_date_string   => $creation_date_string,
-		  expiration_date_string => $expiration_date_string,
-		  local_id               => $local_id,
-		);
-	    
-	    $current_key->push_subkeys( $current_signed_item );
-	}
-	elsif ( $record_type ne 'tru' )
-	{
-	    warn "unknown record type $record_type"; 
-	}
+
+    while (<$stdout>) {
+        my $line = $_;
+        chomp $line;
+        my @fields = split ':', $line;
+        next unless @fields > 3;
+
+        my $record_type = $fields[0];
+
+        if ( $record_type eq 'pub' or $record_type eq 'sec' ) {
+            push @returned_keys, $current_key
+                if $current_key;
+
+            my (
+                $user_id_validity, $key_length, $algo_num, $hex_key_id,
+                $creation_date_string, $expiration_date_string,
+                $local_id, $owner_trust, $user_id_string
+            ) = @fields[ 1 .. $#fields ];
+
+            $current_key = $current_fingerprinted_key
+                = $record_type eq 'pub'
+                ? GnuPG::PublicKey->new()
+                : GnuPG::SecretKey->new();
+
+            $current_key->hash_init(
+                length                 => $key_length,
+                algo_num               => $algo_num,
+                hex_id                 => $hex_key_id,
+                local_id               => $local_id,
+                owner_trust            => $owner_trust,
+                creation_date_string   => $creation_date_string,
+                expiration_date_string => $expiration_date_string,
+            );
+
+            $current_signed_item = GnuPG::UserId->new(
+                validity  => $user_id_validity,
+                as_string => $user_id_string,
+            );
+
+            $current_key->push_user_ids($current_signed_item);
+        }
+        elsif ( $record_type eq 'fpr' ) {
+            my $hex = $fields[9];
+            my $f = GnuPG::Fingerprint->new( as_hex_string => $hex );
+            $current_fingerprinted_key->fingerprint($f);
+        }
+        elsif ( $record_type eq 'sig' ) {
+            my (
+                $algo_num,              $hex_key_id,
+                $signature_date_string, $user_id_string
+            ) = @fields[ 3 .. 5, 9 ];
+
+            my $signature = GnuPG::Signature->new(
+                algo_num       => $algo_num,
+                hex_id         => $hex_key_id,
+                date_string    => $signature_date_string,
+                user_id_string => $user_id_string,
+            );
+
+            if ( $current_signed_item->isa('GnuPG::UserId') ) {
+                $current_signed_item->push_signatures($signature);
+            }
+            elsif ( $current_signed_item->isa('GnuPG::SubKey') ) {
+                $current_signed_item->signature($signature);
+            }
+            else {
+                warn "do not know how to handle signature line: $line\n";
+            }
+        }
+        elsif ( $record_type eq 'uid' ) {
+            my ( $validity, $user_id_string ) = @fields[ 1, 9 ];
+
+            $current_signed_item = GnuPG::UserId->new(
+                validity  => $validity,
+                as_string => $user_id_string,
+            );
+
+            $current_key->push_user_ids($current_signed_item);
+        }
+        elsif ( $record_type eq 'sub' or $record_type eq 'ssb' ) {
+            my (
+                $validity, $key_length, $algo_num, $hex_id,
+                $creation_date_string, $expiration_date_string,
+                $local_id
+            ) = @fields[ 1 .. 7 ];
+
+            $current_signed_item = $current_fingerprinted_key
+                = GnuPG::SubKey->new(
+                validity               => $validity,
+                length                 => $key_length,
+                algo_num               => $algo_num,
+                hex_id                 => $hex_id,
+                creation_date_string   => $creation_date_string,
+                expiration_date_string => $expiration_date_string,
+                local_id               => $local_id,
+                );
+
+            $current_key->push_subkeys($current_signed_item);
+        }
+        elsif ( $record_type ne 'tru' ) {
+            warn "unknown record type $record_type";
+        }
     }
-    
+
     waitpid $pid, 0;
-    
+
     push @returned_keys, $current_key
-      if $current_key;
-    
-    $self->options( $saved_options );
-    
+        if $current_key;
+
+    $self->options($saved_options);
+
     return @returned_keys;
 }
 
-
 ################################################################
 
-
-sub list_public_keys
-{
+sub list_public_keys {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--list-public-keys' ],
-			   );
+    return $self->wrap_call(
+        %args,
+        commands => ['--list-public-keys'],
+    );
 }
 
-
-sub list_sigs
-{
+sub list_sigs {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--list-sigs' ],
-			   );
+    return $self->wrap_call(
+        %args,
+        commands => ['--list-sigs'],
+    );
 }
 
-
-
-sub list_secret_keys
-{
+sub list_secret_keys {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--list-secret-keys' ],
-			   );
+    return $self->wrap_call(
+        %args,
+        commands => ['--list-secret-keys'],
+    );
 }
 
-
-
-sub encrypt( $% )
-{
+sub encrypt( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--encrypt' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--encrypt']
+    );
 }
 
-
-
-sub encrypt_symmetrically( $% )
-{
+sub encrypt_symmetrically( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--symmetric' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--symmetric']
+    );
 }
 
-
-
-sub sign( $% )
-{
+sub sign( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--sign' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--sign']
+    );
 }
 
-
-
-sub clearsign( $% )
-{
+sub clearsign( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,,
-			     commands => [ '--clearsign' ] );
+    return $self->wrap_call(
+        %args,,
+        commands => ['--clearsign']
+    );
 }
 
-
-sub detach_sign( $% )
-{
+sub detach_sign( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--detach-sign' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--detach-sign']
+    );
 }
 
-
-
-sub sign_and_encrypt( $% )
-{
+sub sign_and_encrypt( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--sign',
-						 '--encrypt' ] );
+    return $self->wrap_call(
+        %args,
+        commands => [
+            '--sign',
+            '--encrypt'
+        ]
+    );
 }
 
-
-
-sub decrypt( $% )
-{
+sub decrypt( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--decrypt' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--decrypt']
+    );
 }
 
-
-
-sub verify( $% )
-{
+sub verify( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--verify' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--verify']
+    );
 }
 
-
-
-sub import_keys( $% )
-{
+sub import_keys( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--import' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--import']
+    );
 }
 
-
-
-sub export_keys( $% )
-{
+sub export_keys( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--export' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--export']
+    );
 }
 
-
-sub recv_keys( $% )
-{
+sub recv_keys( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--recv-keys' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--recv-keys']
+    );
 }
 
-
-
-sub send_keys( $% )
-{
+sub send_keys( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call( %args,
-			     commands => [ '--send-keys' ] );
+    return $self->wrap_call(
+        %args,
+        commands => ['--send-keys']
+    );
 }
 
+sub test_default_key_passphrase() {
+    my ($self) = @_;
 
-sub test_default_key_passphrase()
-{
-    my ( $self ) = @_;
-    
     # We can't do something like let the user pass
     # in a passphrase handle because we don't exist
     # anymore after the user runs off with the
     # attachments
     croak 'No passphrase defined to test!'
-      unless defined $self->passphrase();
-    
-    my $stdin       = IO::Handle->new();
-    my $stdout      = IO::Handle->new();
-    my $stderr      = IO::Handle->new();
-    my $status      = IO::Handle->new();
-    
-    my $handles = GnuPG::Handles->new
-      ( stdin    => $stdin,
-	stdout   => $stdout,
-	stderr   => $stderr,
-	status   => $status );
-    
+        unless defined $self->passphrase();
+
+    my $stdin  = IO::Handle->new();
+    my $stdout = IO::Handle->new();
+    my $stderr = IO::Handle->new();
+    my $status = IO::Handle->new();
+
+    my $handles = GnuPG::Handles->new(
+        stdin  => $stdin,
+        stdout => $stdout,
+        stderr => $stderr,
+        status => $status
+    );
+
     # save this setting since we need to be in non-interactive mode
     my $saved_meta_interactive_option = $self->options->meta_interactive();
     $self->options->clear_meta_interactive();
-    
+
     my $pid = $self->sign( handles => $handles );
-    
+
     close $stdin;
-    
+
     # restore this setting to its original setting
-    $self->options->meta_interactive( $saved_meta_interactive_option );
-    
+    $self->options->meta_interactive($saved_meta_interactive_option);
+
     # all we realy want to check is the status fh
-    while ( <$status> )
-    {
-	if ( /^\[GNUPG:\]\s*GOOD_PASSPHRASE/ )
-	{
-	    waitpid $pid, 0;
-	    return 1;
-	}
+    while (<$status>) {
+        if (/^\[GNUPG:\]\s*GOOD_PASSPHRASE/) {
+            waitpid $pid, 0;
+            return 1;
+        }
     }
-    
+
     # If we didn't catch the regexp above, we'll assume
     # that the passphrase was incorrect
     waitpid $pid, 0;
     return 0;
 }
 
-
 1;
 
 ##############################################################
-
 
 =head1 NAME
 
@@ -801,7 +744,7 @@ decryption, verification, and key-listing parsing.
 =head2 How Data Member Accessor Methods are Created
 
 Each module in the GnuPG::Interface bundle relies
-on Class::MethodMaker to generate the get/set methods
+on Moose to generate the get/set methods
 used to set the object's data members.
 I<This is very important to realize.>  This means that
 any data member which is a list has special
@@ -842,13 +785,10 @@ L<perlipc/"Bidirectional Communication with Another Process">.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =item hash_init( I<%args> ).
 
-This methods work as described in L<Class::MethodMaker/"new_hash_init">.
 
 =back
 
@@ -1015,11 +955,6 @@ keys to list in a key-listing.
 
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-or L<Class::MethodMaker/"object">.
-Please read there for more information.
 
 =over 4
 
@@ -1277,7 +1212,6 @@ L<GnuPG::Handles>,
 L<GnuPG::PublicKey>,
 L<GnuPG::SecretKey>,
 L<gpg>,
-L<Class::MethodMaker>,
 L<perlipc/"Bidirectional Communication with Another Process">
 
 =head1 AUTHOR

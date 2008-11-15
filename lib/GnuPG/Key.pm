@@ -14,20 +14,25 @@
 #
 
 package GnuPG::Key;
+use Moose;
+with qw(GnuPG::HashInit);
 
-use strict;
+has [
+    qw( length
+        algo_num
+        hex_id
+        hex_data
+        creation_date_string
+        expiration_date_string
+        fingerprint
+        )
+    ] => (
+    isa => 'Any',
+    is  => 'rw',
+    );
 
-use Class::MethodMaker
-  get_set       => [ qw( length      algo_num     hex_id    hex_data
-			 creation_date_string     expiration_date_string
-			 fingerprint
-		       ) ],
-  new_hash_init => [ qw( new hash_init ) ];
-
-
-sub short_hex_id
-{
-    my ( $self ) = @_;
+sub short_hex_id {
+    my ($self) = @_;
     return substr $self->hex_id(), -8;
 }
 
@@ -61,13 +66,10 @@ GnuPG::SecretKey, or GnuPG::SubKey objects.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =item hash_init( I<%args> ).
 
-This method works as described in L<Class::MethodMaker/"new_hash_init">.
 
 =item short_hex_id
 
@@ -77,11 +79,6 @@ of the key.
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-or L<Class::MethodMaker/"object">.
-Please read there for more information.
 
 =over 4
 
@@ -116,6 +113,5 @@ A GnuPG::Fingerprint object.
 =head1 SEE ALSO
 
 L<GnuPG::Fingerprint>,
-L<Class::MethodMaker>
 
 =cut

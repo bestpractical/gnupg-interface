@@ -13,36 +13,47 @@
 #  $Id: Handles.pm,v 1.8 2001/12/09 02:24:10 ftobin Exp $
 #
 
-
 package GnuPG::Handles;
+use Moose;
+use MooseX::AttributeHelpers;
+with qw(GnuPG::HashInit);
 
-use strict;
+use constant HANDLES => qw(
+    stdin
+    stdout
+    stderr
+    status
+    logger
+    passphrase
+    command
+);
 
-use constant HANDLES => qw( stdin stdout stderr
-			    status logger passphrase
-			    command
-			  );
+has "$_" => (
+    isa     => 'Any',
+    is      => 'rw',
+    clearer => 'clear_' . $_,
+) for HANDLES;
 
-use Class::MethodMaker
-  get_set       => [ HANDLES ],
-  hash          => [ qw( options ) ],
-  new_with_init => 'new',
-  new_hash_init => 'hash_init';
+has _options => (
+    isa        => 'HashRef',
+    is         => 'rw',
+    lazy_build => 1,
+    metaclass  => 'Collection::Hash',
+    provides   => { get => 'options' },
+);
 
+sub _build__options { {} }
 
-sub init
-{
-    my ( $self, %args ) = @_;
+sub BUILD {
+    my ( $self, $args ) = @_;
+
     # This is done for the user's convenience so that they don't
     # have to worry about undefined hashrefs
-    foreach my $handle ( HANDLES ) { $self->options( $handle, {} ) }
-    $self->hash_init( %args );
+    $self->_options->{$_} = {} for HANDLES;
+    $self->hash_init(%$args);
 }
 
-
-
 1;
-
 
 =head1 NAME
 
@@ -84,22 +95,14 @@ communicate with GnuPG.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =item hash_init( I<%args> ).
 
-This method works as described in L<Class::MethodMaker/"new_hash_init">.
 
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-or L<Class::MethodMaker/"object">.
-Please read there for more information.
 
 =over 4
 
@@ -173,6 +176,5 @@ an already-opened file.
 =head1 SEE ALSO
 
 L<GnuPG::Interface>,
-L<Class::MethodMaker>
 
 =cut

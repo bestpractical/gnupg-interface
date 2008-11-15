@@ -14,95 +14,108 @@
 #
 
 package GnuPG::Options;
+use Moose;
+use MooseX::AttributeHelpers;
+with qw(GnuPG::HashInit);
 
-use strict;
+use constant BOOLEANS => qw(
+    armor
+    no_greeting
+    verbose
+    no_verbose
+    quiet
+    batch
+    always_trust
+    rfc1991
+    openpgp
+    force_v3_sigs
+    no_options
+    textmode
+    meta_pgp_5_compatible
+    meta_pgp_2_compatible
+    meta_interactive
+);
 
-use constant BOOLEANS => qw( armor
-			     no_greeting
-			     verbose             no_verbose       quiet
-			     batch
-			     always_trust
-			     rfc1991             openpgp
-			     force_v3_sigs
-			     no_options
-			     textmode
-			     
-			     meta_pgp_5_compatible
-			     meta_pgp_2_compatible
-			     meta_interactive
-			   );
+use constant SCALARS => qw(
+    homedir
+    default_key
+    comment
+    status_fd
+    logger_fd
+    passphrase_fd
+    command_fd
+    compress_algo
+    options
+    meta_signing_key
+    meta_signing_key_id
+);
 
-use constant SCALARS => qw( homedir
-			    default_key
-			    comment
-			    status_fd       logger_fd       passphrase_fd
-			    command_fd
-			    compress_algo
-			    options
-			    
-			    meta_signing_key
-			    meta_signing_key_id
-			  );
+use constant LISTS => qw(
+    encrypt_to
+    recipients
+    meta_recipients_keys
+    meta_recipients_key_ids
+    extra_args
+);
 
-use constant LISTS => qw( encrypt_to
-			  recipients
-			  meta_recipients_keys
-			  meta_recipients_key_ids
-			  extra_args
-			);
+has $_ => (
+    isa     => 'Bool',
+    is      => 'rw',
+    clearer => 'clear_' . $_,
+) for BOOLEANS;
 
-use Class::MethodMaker
-  boolean       => [ BOOLEANS ],
-  get_set       => [ SCALARS ],
-  list          => [ LISTS ],
-  new_with_init => 'new',
-  new_hash_init => 'hash_init';
+has $_ => (
+    isa     => 'Any',
+    is      => 'rw',
+    clearer => 'clear_' . $_,
+) for SCALARS;
 
+has $_ => (
+    isa        => 'ArrayRef',
+    is         => 'rw',
+    lazy       => 1,
+    clearer    => 'clear_' . $_,
+    default    => sub { [] },
+    auto_deref => 1,
+    metaclass  => 'Collection::Array',
+    provides   => { push => 'push_' . $_ },
+) for LISTS;
 
-sub init
-{
-    my ( $self, %args ) = @_;
-    
+sub BUILD {
+    my ( $self, $args ) = @_;
     $self->hash_init( meta_interactive => 1 );
-    $self->hash_init( %args );
+    $self->hash_init(%$args);
 }
 
+sub copy {
+    my ($self) = @_;
 
+    my $new = ( ref $self )->new();
 
-sub copy
-{
-    my ( $self ) = @_;
-    
-    my $new = (ref $self)->new();
-    
-    foreach my $field ( BOOLEANS, SCALARS, LISTS )
-    {
-	$new->$field( $self->$field() );
+    foreach my $field ( BOOLEANS, SCALARS, LISTS ) {
+        my $value = $self->$field();
+        next unless $value;
+        $new->$field($value);
     }
-    
+
     return $new;
 }
 
+sub get_args {
+    my ($self) = @_;
 
-
-sub get_args
-{
-    my ( $self ) = @_;
-    
-    return ( $self->get_meta_args(),
-	     $self->get_option_args(),
-	     $self->extra_args(),
-	   );
+    return (
+        $self->get_meta_args(),
+        $self->get_option_args(),
+        $self->extra_args(),
+    );
 }
 
-
-
-sub get_option_args
-{
-    my ( $self ) = @_;
+sub get_option_args {
+    my ($self) = @_;
 
     my @args = ();
-    
+
     push @args, '--homedir', $self->homedir() if $self->homedir();
     push @args, '--options', $self->options() if $self->options();
     push @args, '--no-options' if $self->no_options();
@@ -115,58 +128,55 @@ sub get_option_args
     push @args, '--quiet'        if $self->quiet();
     push @args, '--batch'        if $self->batch();
     push @args, '--always-trust' if $self->always_trust();
-    push @args, '--comment',     $self->comment() if defined $self->comment();
-    push @args, '--force-v3-sigs'  if $self->force_v3_sigs();
-    push @args, '--rfc1991'        if $self->rfc1991;
-    push @args, '--openpgp'        if $self->openpgp();
+    push @args, '--comment', $self->comment() if defined $self->comment();
+    push @args, '--force-v3-sigs' if $self->force_v3_sigs();
+    push @args, '--rfc1991'       if $self->rfc1991;
+    push @args, '--openpgp'       if $self->openpgp();
     push @args, '--compress-algo', $self->compress_algo()
-      if defined $self->compress_algo();
-    
-    push @args, '--status-fd',       $self->status_fd()
-      if defined $self->status_fd();
-    push @args, '--logger-fd',       $self->logger_fd() 
-      if defined $self->logger_fd();
-    push @args, '--passphrase-fd',   $self->passphrase_fd()
-      if defined $self->passphrase_fd();
-    push @args, '--command-fd',   $self->command_fd()
-      if defined $self->command_fd();
-    
-    push @args, map { ( '--recipient', $_ ) }  $self->recipients();
+        if defined $self->compress_algo();
+
+    push @args, '--status-fd', $self->status_fd()
+        if defined $self->status_fd();
+    push @args, '--logger-fd', $self->logger_fd()
+        if defined $self->logger_fd();
+    push @args, '--passphrase-fd', $self->passphrase_fd()
+        if defined $self->passphrase_fd();
+    push @args, '--command-fd', $self->command_fd()
+        if defined $self->command_fd();
+
+    push @args, map { ( '--recipient',  $_ ) } $self->recipients();
     push @args, map { ( '--encrypt-to', $_ ) } $self->encrypt_to();
-    
+
     return @args;
 }
 
+sub get_meta_args {
+    my ($self) = @_;
 
-
-sub get_meta_args
-{
-    my ( $self ) = @_;
-    
     my @args = ();
-    
-    push @args, '--compress-algo', 1, '--force-v3-sigs' 
-      if $self->meta_pgp_5_compatible();
-    push @args, '--rfc1991'            if $self->meta_pgp_2_compatible();
-    push @args, '--batch', '--no-tty'  if not $self->meta_interactive();
-    
+
+    push @args, '--compress-algo', 1, '--force-v3-sigs'
+        if $self->meta_pgp_5_compatible();
+    push @args, '--rfc1991' if $self->meta_pgp_2_compatible();
+    push @args, '--batch', '--no-tty' if not $self->meta_interactive();
+
     # To eliminate confusion, we'll move to having any options
     # that deal with keys end in _id(s) if they only take
     # an id; otherwise we assume that a GnuPG::Key
     push @args, '--default-key', $self->meta_signing_key_id()
-      if $self->meta_signing_key_id();
+        if $self->meta_signing_key_id();
     push @args, '--default-key', $self->meta_signing_key()->hex_id()
-      if $self->meta_signing_key();
-    
-    push @args, map { ( '--recipient', $_ ) } $self->meta_recipients_key_ids();
-    push @args, map { ( '--recipient', $_->hex_id() ) } $self->meta_recipients_keys();
-    
+        if $self->meta_signing_key();
+
+    push @args,
+        map { ( '--recipient', $_ ) } $self->meta_recipients_key_ids();
+    push @args,
+        map { ( '--recipient', $_->hex_id() ) } $self->meta_recipients_keys();
+
     return @args;
 }
 
-
 1;
-
 
 __END__
 
@@ -192,13 +202,10 @@ own, but rather as part of a GnuPG::Interface object.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =item hash_init( I<%args> ).
 
-This method works as described in L<Class::MethodMaker/"new_hash_init">.
 
 =item copy
 
@@ -213,11 +220,6 @@ and then I<extra_args>, in that order.
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"boolean">,
-L<Class::MethodMaker/"get_set">, L<Class::MethodMaker/"object">,
-and L<Class::MethodMaker/"list">.  Please read there for more information.
 
 =over 4
 
@@ -343,6 +345,5 @@ Useful to pass an argument not yet covered in this package.
 =head1 SEE ALSO
 
 L<GnuPG::Interface>,
-L<Class::MethodMaker>
 
 =cut

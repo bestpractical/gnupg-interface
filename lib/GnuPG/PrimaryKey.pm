@@ -14,14 +14,25 @@
 #
 
 package GnuPG::PrimaryKey;
+use Moose;
+use MooseX::AttributeHelpers;
 
-use strict;
+BEGIN { extends qw( GnuPG::Key ) }
 
-use base qw( GnuPG::Key );
+has $_ => (
+    isa        => 'ArrayRef',
+    is         => 'rw',
+    default    => sub { [] },
+    auto_deref => 1,
+    metaclass  => 'Collection::Array',
+    provides   => { push => 'push_' . $_ },
+) for qw( user_ids subkeys  );
 
-use Class::MethodMaker
-  list          => [ qw( user_ids   subkeys  ) ],
-  get_set       => [ qw( local_id   owner_trust ) ];
+has $_ => (
+    isa     => 'Any',
+    is      => 'rw',
+    clearer => 'clear_' . $_,
+) for qw( local_id owner_trust );
 
 1;
 
@@ -55,11 +66,6 @@ in L<GnuPG::Key>.
 
 =head1 OBJECT DATA MEMBERS
 
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-L<Class::MethodMaker/"object">, or L<Class::MethodMaker/"list">.
-Please read there for more information.
-
 =over 4
 
 =item user_ids
@@ -86,6 +92,5 @@ See GnuPG's DETAILS file for details.
 L<GnuPG::Key>,
 L<GnuPG::UserId>,
 L<GnuPG::SubKey>,
-L<Class::MethodMaker>
 
 =cut

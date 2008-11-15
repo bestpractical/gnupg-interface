@@ -14,14 +14,12 @@
 #
 
 package GnuPG::Signature;
+use Moose;
 
-use strict;
-
-use Class::MethodMaker
-  get_set       => [ qw( algo_num    hex_id   user_id_string
-			 date_string
-		       ) ],
-  new_hash_init => 'new';
+has [qw( algo_num hex_id user_id_string date_string )] => (
+    isa => 'Any',
+    is  => 'rw',
+);
 
 1;
 
@@ -49,18 +47,11 @@ They embody various aspects of a GnuPG signature on a key.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-L<Class::MethodMaker/"object">, or L<Class::MethodMaker/"list">.
-Please read there for more information.
 
 =over 4
 
@@ -85,6 +76,5 @@ The formatted date the signature was performed on.
 
 =head1 SEE ALSO
 
-See also L<Class::MethodMaker>.
 
 =cut

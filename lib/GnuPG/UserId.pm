@@ -14,19 +14,26 @@
 #
 
 package GnuPG::UserId;
+use Moose;
+use MooseX::AttributeHelpers;
 
-use strict;
+has [qw( validity as_string )] => (
+    isa => 'Any',
+    is  => 'rw',
+);
 
-use Class::MethodMaker
-  get_set       => [ qw( validity as_string ) ],
-  list          => [ qw( signatures ) ],
-  new_hash_init => 'new';
+has $_ => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+    metaclass => 'Collection::Array',
+    provides  => { push => 'push_' . $_ },
+) for qw(signatures);
 
 # DEPRECATED
-sub user_id_string
-{
+sub user_id_string {
     my ( $self, $v ) = @_;
-    $self->as_string( $v ) if defined $v;
+    $self->as_string($v) if defined $v;
     return $self->as_string();
 }
 
@@ -56,18 +63,11 @@ objects.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members;
 
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-L<Class::MethodMaker/"object">, or L<Class::MethodMaker/"list">.
-Please read there for more information.
 
 =over 4
 
@@ -91,6 +91,5 @@ on this user id.
 =head1 SEE ALSO
 
 L<GnuPG::Signature>,
-L<Class::MethodMaker>
 
 =cut

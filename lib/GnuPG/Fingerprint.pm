@@ -14,12 +14,13 @@
 #
 
 package GnuPG::Fingerprint;
+use Moose;
+with qw(GnuPG::HashInit);
 
-use strict;
-
-use Class::MethodMaker
-  get_set       => [ qw( as_hex_string ) ],
-  new_hash_init => 'new';
+has as_hex_string => (
+    isa => 'Any',
+    is  => 'rw',        
+);
 
 # DEPRECATED
 sub hex_data
@@ -56,22 +57,13 @@ objects, and are not created on their own.
 =item new( I<%initialization_args> )
 
 This methods creates a new object.  The optional arguments are
-initialization of data members; the initialization is done
-in a manner according to the method created as described
-in L<Class::MethodMaker/"new_hash_init">.
+initialization of data members.
 
 =item hash_init( I<%args> ).
-
-This method works as described in L<Class::MethodMaker/"new_hash_init">.
 
 =back
 
 =head1 OBJECT DATA MEMBERS
-
-Note that these data members are interacted with via object methods
-created using the methods described in L<Class::MethodMaker/"get_set">,
-or L<Class::MethodMaker/"object">.
-Please read there for more information.
 
 =over 4
 
@@ -85,6 +77,5 @@ in string format.
 =head1 SEE ALSO
 
 L<GnuPG::Key>,
-L<Class::MethodMaker>
 
 =cut
