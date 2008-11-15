@@ -1,3 +1,7 @@
+0.40_1 Sat Nov 15 12:35:59 EST 2008
+	* [rt.cpan.org #40963] Replace Class::MethodMaker with Moose  (Chris Prather)
+
+
 0.36 Mon Aug 13 12:16:38 EDT 2007
 
     * [rt.cpan.org #28814] - Performance improvement from mehradek (Radoslaw Zielinski)
