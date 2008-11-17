@@ -41,6 +41,7 @@ WriteMakefile
     
     PREREQ_PM    => {
 		     'Moose' => 0.61,
+		     'MooseX::AttributeHelpers' => 0.14,
 		    },
     
     PM           => { %pm_install_hash },
