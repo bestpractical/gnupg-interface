@@ -14,7 +14,7 @@
 #
 
 package GnuPG::PublicKey;
-use Moose;
+use Any::Moose;
 
 BEGIN { extends qw( GnuPG::PrimaryKey ) }
 

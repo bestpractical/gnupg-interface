@@ -14,7 +14,7 @@
 #
 
 package GnuPG::UserId;
-use Moose;
+use Any::Moose;
 
 has [qw( validity as_string )] => (
     isa => 'Any',

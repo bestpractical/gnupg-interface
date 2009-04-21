@@ -14,7 +14,7 @@
 #
 
 package GnuPG::Key;
-use Moose;
+use Any::Moose;
 with qw(GnuPG::HashInit);
 
 has [

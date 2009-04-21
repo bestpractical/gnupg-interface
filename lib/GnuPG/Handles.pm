@@ -14,7 +14,7 @@
 #
 
 package GnuPG::Handles;
-use Moose;
+use Any::Moose;
 with qw(GnuPG::HashInit);
 
 use constant HANDLES => qw(

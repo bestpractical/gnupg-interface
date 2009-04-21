@@ -12,7 +12,7 @@
 #
 
 package GnuPG::Interface;
-use Moose;
+use Any::Moose;
 with qw(GnuPG::HashInit);
 
 use English qw( -no_match_vars );
@@ -744,7 +744,7 @@ decryption, verification, and key-listing parsing.
 =head2 How Data Member Accessor Methods are Created
 
 Each module in the GnuPG::Interface bundle relies
-on Moose to generate the get/set methods
+on Any::Moose to generate the get/set methods
 used to set the object's data members.
 I<This is very important to realize.>  This means that
 any data member which is a list has special

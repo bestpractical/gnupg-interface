@@ -14,7 +14,7 @@
 #
 
 package GnuPG::Fingerprint;
-use Moose;
+use Any::Moose;
 with qw(GnuPG::HashInit);
 
 has as_hex_string => (

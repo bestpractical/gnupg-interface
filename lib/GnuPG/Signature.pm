@@ -14,7 +14,7 @@
 #
 
 package GnuPG::Signature;
-use Moose;
+use Any::Moose;
 
 has [qw( algo_num hex_id user_id_string date_string )] => (
     isa => 'Any',

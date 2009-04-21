@@ -16,7 +16,7 @@ WriteMakefile
     NAME         => 'GnuPG::Interface',
     VERSION_FROM => 'lib/GnuPG/Interface.pm',
     PREREQ_PM    => {
-		     'Moose' => 0.61,
+		     'Any::Moose' => '0.04',
 		    },
     clean        => { FILES => "test/*-keys*/*.out test/random_seed test/trustdb.gpg test/temp" }
   );
