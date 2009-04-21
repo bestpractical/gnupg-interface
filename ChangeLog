@@ -1,4 +1,4 @@
-0.40_03 Tue Apr 21 19:50:12 JST 2009
+0.40_04 Tue Apr 21 19:50:12 JST 2009
 
     * Use Any::Moose instead of Moose for Mouse celerity (Sartak)
 
