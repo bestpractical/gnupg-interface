@@ -3,7 +3,6 @@ MANIFEST.bak
 META.yml
 Makefile
 Makefile.old
-SIGNATURE
 blib/
 inc/
 pm_to_blib
