@@ -22,6 +22,8 @@ has [qw( validity   owner_trust  local_id  signature )] => (
     is  => 'rw',
 );
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

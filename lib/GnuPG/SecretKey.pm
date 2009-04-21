@@ -18,6 +18,8 @@ use Any::Moose;
 
 BEGIN { extends qw( GnuPG::PrimaryKey ) }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

@@ -179,6 +179,8 @@ sub get_meta_args {
     return @args;
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

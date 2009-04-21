@@ -36,6 +36,8 @@ sub short_hex_id {
     return substr $self->hex_id(), -8;
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

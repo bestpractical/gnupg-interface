@@ -30,6 +30,8 @@ sub hex_data
     return $self->as_hex_string();
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

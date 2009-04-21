@@ -21,6 +21,8 @@ has [qw( algo_num hex_id user_id_string date_string )] => (
     is  => 'rw',
 );
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

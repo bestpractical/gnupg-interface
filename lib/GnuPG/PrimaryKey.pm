@@ -38,6 +38,8 @@ has $_ => (
     clearer => 'clear_' . $_,
 ) for qw( local_id owner_trust );
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__

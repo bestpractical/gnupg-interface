@@ -61,8 +61,6 @@ struct(
     }
 );
 
-1;
-
 #################################################################
 # real worker functions
 
@@ -336,6 +334,10 @@ sub my_fileno {
     croak "error determining fileno for $fh: $ERRNO" unless defined $fileno;
     return $fileno;
 }
+
+__PACKAGE__->meta->make_immutable;
+
+1;
 
 __END__
 

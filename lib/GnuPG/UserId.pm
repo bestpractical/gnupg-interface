@@ -39,6 +39,8 @@ sub user_id_string {
     return $self->as_string();
 }
 
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 __END__
