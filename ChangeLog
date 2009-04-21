@@ -1,3 +1,6 @@
+0.40_3
+    * Use Any::Moose instead of Moose for Mouse celerity (Sartak)
+
 0.40_1 Sat Nov 15 12:35:59 EST 2008
 	* [rt.cpan.org #40963] Replace Class::MethodMaker with Moose  (Chris Prather)
 
