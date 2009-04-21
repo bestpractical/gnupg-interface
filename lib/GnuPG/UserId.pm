@@ -15,20 +15,22 @@
 
 package GnuPG::UserId;
 use Moose;
-use MooseX::AttributeHelpers;
 
 has [qw( validity as_string )] => (
     isa => 'Any',
     is  => 'rw',
 );
 
-has $_ => (
+has signatures => (
     isa       => 'ArrayRef',
     is        => 'rw',
     default   => sub { [] },
-    metaclass => 'Collection::Array',
-    provides  => { push => 'push_' . $_ },
-) for qw(signatures);
+);
+
+sub push_signatures {
+    my $self = shift;
+    push @{ $self->signatures }, @_;
+}
 
 # DEPRECATED
 sub user_id_string {

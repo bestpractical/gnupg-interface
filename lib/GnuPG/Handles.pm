@@ -15,7 +15,6 @@
 
 package GnuPG::Handles;
 use Moose;
-use MooseX::AttributeHelpers;
 with qw(GnuPG::HashInit);
 
 use constant HANDLES => qw(
@@ -38,9 +37,14 @@ has _options => (
     isa        => 'HashRef',
     is         => 'rw',
     lazy_build => 1,
-    metaclass  => 'Collection::Hash',
-    provides   => { get => 'options' },
 );
+
+sub options {
+    my $self = shift;
+    my $key = shift;
+
+    return $self->_options->{$key};
+}
 
 sub _build__options { {} }
 

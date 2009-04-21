@@ -15,7 +15,6 @@
 
 package GnuPG::Options;
 use Moose;
-use MooseX::AttributeHelpers;
 with qw(GnuPG::HashInit);
 
 use constant BOOLEANS => qw(
@@ -70,16 +69,20 @@ has $_ => (
     clearer => 'clear_' . $_,
 ) for SCALARS;
 
-has $_ => (
-    isa        => 'ArrayRef',
-    is         => 'rw',
-    lazy       => 1,
-    clearer    => 'clear_' . $_,
-    default    => sub { [] },
-    auto_deref => 1,
-    metaclass  => 'Collection::Array',
-    provides   => { push => 'push_' . $_ },
-) for LISTS;
+for my $list (LISTS) {
+    has $list => (
+        isa        => 'ArrayRef',
+        is         => 'rw',
+        lazy       => 1,
+        clearer    => "clear_$list",
+        default    => sub { [] },
+        auto_deref => 1,
+    );
+    __PACKAGE__->meta->add_method("push_$list" => sub {
+        my $self = shift;
+        push @{ $self->$list }, @_;
+    });
+}
 
 sub BUILD {
     my ( $self, $args ) = @_;

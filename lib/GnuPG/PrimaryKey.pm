@@ -15,18 +15,22 @@
 
 package GnuPG::PrimaryKey;
 use Moose;
-use MooseX::AttributeHelpers;
 
 BEGIN { extends qw( GnuPG::Key ) }
 
-has $_ => (
-    isa        => 'ArrayRef',
-    is         => 'rw',
-    default    => sub { [] },
-    auto_deref => 1,
-    metaclass  => 'Collection::Array',
-    provides   => { push => 'push_' . $_ },
-) for qw( user_ids subkeys  );
+for my $list (qw(user_ids subkeys)) {
+    has $list => (
+        isa        => 'ArrayRef',
+        is         => 'rw',
+        default    => sub { [] },
+        auto_deref => 1,
+    );
+
+    __PACKAGE__->meta->add_method("push_$list" => sub {
+        my $self = shift;
+        push @{ $self->$list }, @_;
+    });
+}
 
 has $_ => (
     isa     => 'Any',
