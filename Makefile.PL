@@ -2,12 +2,15 @@ use strict;
 use warnings;
 use inc::Module::Install;
 
-my $gpg_find = 'which gpg';
-print "$gpg_find ... ";
-system($gpg_find);
-if ( $? != 0 ) {
-    die "gpg (GnuPG) not found";
+for my $gpg qw(gpg gpg2) {
+    my $gpg_find = "which $gpg";
+    print "$gpg_find ... ";
+    system($gpg_find);
+    if ( $? != 0 ) {
+        die "gpg (GnuPG) not found";
+    } else { last }
 }
+
 
 author 'Frank J. Tobin';
 abstract 'supply object methods for interacting with GnuPG';

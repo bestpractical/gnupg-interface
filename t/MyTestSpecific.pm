@@ -39,7 +39,14 @@ use vars qw( @ISA           @EXPORT
 	    );
 
 
-$gpg_program = 'gpg';
+for my $gpg qw(gpg gpg2) {
+    my $gpg_find = "which $gpg";
+    print "$gpg_find ... ";
+    system($gpg_find);
+    if ( $? != 0 ) {
+        die "gpg (GnuPG) not found";
+    } else { $gpg_program = $gpg; last }
+}
 
 $gnupg = GnuPG::Interface->new( gnupg_call  => $gpg_program,
 				passphrase  => 'test',
