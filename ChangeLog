@@ -1,3 +1,7 @@
+0.41_01 Fri Sep 25 02:56:33 JST 2009
+
+	* Beginnings of support for GPG2
+
 0.40_04 Tue Apr 21 19:50:12 JST 2009
 
     * Use Any::Moose instead of Moose for Mouse celerity (Sartak)
