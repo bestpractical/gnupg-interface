@@ -20,7 +20,6 @@ use Carp;
 use Fcntl;
 use vars qw( $VERSION );
 use Fatal qw( open close pipe fcntl );
-use AutoLoader 'AUTOLOAD';
 use Class::Struct;
 use IO::Handle;
 
@@ -335,11 +334,7 @@ sub my_fileno {
     return $fileno;
 }
 
-__PACKAGE__->meta->make_immutable;
 
-1;
-
-__END__
 
 ###################################################################
 
@@ -425,6 +420,12 @@ sub get_keys {
                 $local_id, $owner_trust, $user_id_string
             ) = @fields[ 1 .. $#fields ];
 
+
+			# GnuPg 2.x uses epoch time for creation and expiration date strings. 
+			# For backward compatibility, we convert them back using GMT;
+			$creation_date_string = $self->_downrez_gpg2_date($creation_date_string);
+			$expiration_date_string = $self->_downrez_gpg2_date($expiration_date_string);
+
             $current_key = $current_fingerprinted_key
                 = $record_type eq 'pub'
                 ? GnuPG::PublicKey->new()
@@ -458,6 +459,7 @@ sub get_keys {
                 $signature_date_string, $user_id_string
             ) = @fields[ 3 .. 5, 9 ];
 
+			$signature_date_string = $self->_downrez_gpg2_date($signature_date_string);
             my $signature = GnuPG::Signature->new(
                 algo_num       => $algo_num,
                 hex_id         => $hex_key_id,
@@ -492,6 +494,8 @@ sub get_keys {
                 $local_id
             ) = @fields[ 1 .. 7 ];
 
+			$creation_date_string = $self->_downrez_gpg2_date($creation_date_string);
+			$expiration_date_string = $self->_downrez_gpg2_date($expiration_date_string);
             $current_signed_item = $current_fingerprinted_key
                 = GnuPG::SubKey->new(
                 validity               => $validity,
@@ -519,6 +523,19 @@ sub get_keys {
 
     return @returned_keys;
 }
+
+sub _downrez_gpg2_date {
+	my $self = shift;
+	my $date = shift;
+    if ($date =~  /^\d+$/) {
+        my ($year,$month,$day) = (gmtime($date))[5,4,3];
+        $year += 1900;
+        $month += 1;
+		return    sprintf('%04d-%02d-%02d',   $year, $month, $day);
+    }
+	return $date;
+}
+
 
 ################################################################
 
@@ -1223,3 +1240,9 @@ GnuPg::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.
 Frank J. Tobin, ftobin@cpan.org was the original author of the package.
 
 =cut
+
+
+__PACKAGE__->meta->make_immutable;
+
+1;
+
