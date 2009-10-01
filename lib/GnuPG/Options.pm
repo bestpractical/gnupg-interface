@@ -272,6 +272,8 @@ and then I<extra_args>, in that order.
 
 =item recipients
 
+=back
+
 These options correlate directly to many GnuPG options.  For those that
 are boolean to GnuPG, simply that argument is passed.  For those
 that are associated with a scalar, that scalar is passed passed
@@ -296,6 +298,8 @@ To help avoid confusion, methods with take a form of a key as
 an object shall be prepended with I<_id(s)> if they only
 take an id; otherwise assume an object of type GnuPG::Key
 is required.
+
+=over 4
 
 =item meta_pgp_5_compatible
 
