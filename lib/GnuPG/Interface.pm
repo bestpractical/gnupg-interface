@@ -1108,11 +1108,11 @@ The following setup can be done before any of the following examples:
   my $pid = $gnupg->decrypt( handles => $handles );
 
   # This passes in the passphrase
-  print $passphrase_fd $passphrase;
-  close $passphrase_fd;
+  print $passphrase_fh $passphrase;
+  close $passphrase_fh;
 
   # this passes in the plaintext
-  print $input $_ while <$cipher_file>
+  print $input $_ while <$cipher_file>;
 
   # this closes the communication channel,
   # indicating we are done
