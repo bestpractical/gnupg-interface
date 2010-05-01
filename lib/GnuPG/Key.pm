@@ -102,6 +102,7 @@ The long hex id of the key.  This is not the fingerprint nor
 the short hex id, which is 8 hex characters.
 
 =item creation_date_string
+
 =item expiration_date_string
 
 Formatted date of the key's creation and expiration.

@@ -42,7 +42,7 @@ through various methods of GnuPG::Interface.
 They embody various aspects of a GnuPG public key.
 
 This package inherits data members and object methods
-from GnuPG::PrimaryKey, which is described here, but rather
+from GnuPG::PrimaryKey, which is not described here, but rather
 in L<GnuPG::PrimaryKey>.
 
 Currently, this package is functionally no different

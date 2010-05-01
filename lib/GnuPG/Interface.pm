@@ -1136,13 +1136,13 @@ The following setup can be done before any of the following examples:
   # and read from our input, because no input is needed!
   my $handles = GnuPG::Handles->new();
   
-  my @ids = [ 'ftobin', '0xABCD1234' ];
+  my @ids = ( 'ftobin', '0xABCD1234' );
 
   # this time we need to specify something for
   # command_args because --list-public-keys takes
   # search ids as arguments
   my $pid = $gnupg->list_public_keys( handles      => $handles,
-                                      command_args => [ @ids ]  );
+                                      command_args => [ @ids ] );
   
    waitpid $pid, 0;
 
