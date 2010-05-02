@@ -335,6 +335,11 @@ sub my_fileno {
 }
 
 
+sub unescape_string {
+  my($str) = splice(@_);
+  $str =~ s/\\x(..)/chr(hex($1))/eg;
+  return $str;
+}
 
 ###################################################################
 
@@ -446,7 +451,7 @@ sub get_keys {
 
             $current_signed_item = GnuPG::UserId->new(
                 validity  => $user_id_validity,
-                as_string => $user_id_string,
+                as_string => unescape_string($user_id_string),
             );
 
             $current_key->push_user_ids($current_signed_item);
@@ -467,7 +472,7 @@ sub get_keys {
                 algo_num       => $algo_num,
                 hex_id         => $hex_key_id,
                 date_string    => $signature_date_string,
-                user_id_string => $user_id_string,
+                user_id_string => unescape_string($user_id_string),
             );
 
             if ( $current_signed_item->isa('GnuPG::UserId') ) {
@@ -485,7 +490,7 @@ sub get_keys {
 
             $current_signed_item = GnuPG::UserId->new(
                 validity  => $validity,
-                as_string => $user_id_string,
+                as_string => unescape_string($user_id_string),
             );
 
             $current_key->push_user_ids($current_signed_item);
