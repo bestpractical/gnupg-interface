@@ -428,11 +428,15 @@ sub get_keys {
                 $usage_flags,
             ) = @fields[ 1 .. $#fields ];
 
-
-			# --fixed-list-mode uses epoch time for creation and expiration date strings.
-			# For backward compatibility, we convert them back using GMT;
-			my $creation_date_string = $self->_downrez_date($creation_date);
-			my $expiration_date_string = $self->_downrez_date($expiration_date);
+            # --fixed-list-mode uses epoch time for creation and expiration date strings.
+            # For backward compatibility, we convert them back using GMT;
+            my $expiration_date_string;
+            if ($expiration_date eq '') {
+              $expiration_date = undef;
+            } else {
+              $expiration_date_string = $self->_downrez_date($expiration_date);
+            }
+            my $creation_date_string = $self->_downrez_date($creation_date);
 
             $current_key = $current_fingerprinted_key
                 = $record_type eq 'pub'
@@ -461,15 +465,26 @@ sub get_keys {
         elsif ( $record_type eq 'sig' ) {
             my (
                 $algo_num,              $hex_key_id,
-                $signature_date, $user_id_string
-            ) = @fields[ 3 .. 5, 9 ];
+                $signature_date,
+                $expiration_date,
+                $user_id_string
+            ) = @fields[ 3 .. 6, 9 ];
 
-			my $signature_date_string = $self->_downrez_date($signature_date);
+            my $expiration_date_string;
+            if ($expiration_date eq '') {
+              $expiration_date = undef;
+            } else {
+              $expiration_date_string = $self->_downrez_date($expiration_date);
+            }
+            my $signature_date_string = $self->_downrez_date($signature_date);
+
             my $signature = GnuPG::Signature->new(
                 algo_num       => $algo_num,
                 hex_id         => $hex_key_id,
                 date           => $signature_date,
                 date_string    => $signature_date_string,
+                expiration_date => $expiration_date,
+                expiration_date_string => $expiration_date_string,
                 user_id_string => unescape_string($user_id_string),
             );
 
@@ -502,8 +517,14 @@ sub get_keys {
                 $usage_flags,
             ) = @fields[ 1 .. 11 ];
 
-			my $creation_date_string = $self->_downrez_date($creation_date);
-			my $expiration_date_string = $self->_downrez_date($expiration_date);
+            my $expiration_date_string;
+            if ($expiration_date eq '') {
+              $expiration_date = undef;
+            } else {
+              $expiration_date_string = $self->_downrez_date($expiration_date);
+            }
+            my $creation_date_string = $self->_downrez_date($creation_date);
+
             $current_signed_item = $current_fingerprinted_key
                 = GnuPG::SubKey->new(
                 validity               => $validity,

@@ -16,7 +16,7 @@
 package GnuPG::Signature;
 use Any::Moose;
 
-has [qw( algo_num hex_id user_id_string date date_string )] => (
+has [qw( algo_num hex_id user_id_string date date_string expiration_date expiration_date_string )] => (
     isa => 'Any',
     is  => 'rw',
 );
@@ -78,6 +78,17 @@ The formatted date the signature was performed on.
 
 The date the signature was performed, represented as the number of
 seconds since midnight 1970-01-01 UTC.
+
+=item expiration_date_string
+
+The formatted date the signature will expire (signatures without
+expiration return undef).
+
+=item expiration_date
+
+The date the signature will expire, represented as the number of
+seconds since midnight 1970-01-01 UTC (signatures without expiration
+return undef)
 
 =back
 

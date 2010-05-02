@@ -122,14 +122,16 @@ the short hex id, which is 8 hex characters.
 
 =item expiration_date_string
 
-Formatted date of the key's creation and expiration.
+Formatted date of the key's creation and expiration.  If the key has
+no expiration, expiration_date_string will return undef.
 
 =item creation_date
 
 =item expiration_date
 
 Date of the key's creation and expiration, stored as the number of
-seconds since midnight 1970-01-01 UTC.
+seconds since midnight 1970-01-01 UTC.  If the key has no expiration,
+expiration_date will return undef.
 
 =item fingerprint
 
