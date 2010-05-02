@@ -365,7 +365,7 @@ sub get_public_keys_with_sigs ( $@ ) {
     my ( $self, @key_ids ) = @_;
 
     return $self->get_keys(
-        commands     => ['--list-sigs'],
+        commands     => ['--check-sigs'],
         command_args => [@key_ids],
     );
 }
@@ -464,11 +464,12 @@ sub get_keys {
         }
         elsif ( $record_type eq 'sig' ) {
             my (
+                $validity,
                 $algo_num,              $hex_key_id,
                 $signature_date,
                 $expiration_date,
                 $user_id_string
-            ) = @fields[ 3 .. 6, 9 ];
+            ) = @fields[ 1, 3 .. 6, 9 ];
 
             my $expiration_date_string;
             if ($expiration_date eq '') {
@@ -479,6 +480,7 @@ sub get_keys {
             my $signature_date_string = $self->_downrez_date($signature_date);
 
             my $signature = GnuPG::Signature->new(
+                validity       => $validity,
                 algo_num       => $algo_num,
                 hex_id         => $hex_key_id,
                 date           => $signature_date,

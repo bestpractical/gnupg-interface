@@ -43,7 +43,8 @@ TEST
       );
     
     my $subkey_signature = GnuPG::ComparableSignature->new
-      ( algo_num       => 17,
+      ( validity       => '!',
+        algo_num       => 17,
 	hex_id         => '53AE596EF950DA9C',
         date           => 1177086380,
 	date_string    => '2007-04-20',
@@ -51,14 +52,16 @@ TEST
       );
     
     my $uid2_signature = GnuPG::Signature->new
-      ( algo_num       => 17,
+      ( validity       => '!',
+        algo_num       => 17,
         hex_id         => '53AE596EF950DA9C',
         date           => 953179891,
         date_string    => '2000-03-16',
       );
     
     my $ftobin_signature = GnuPG::Signature->new
-      ( algo_num       => 17,
+      ( validity       => '!',
+        algo_num       => 17,
 	hex_id         => '56FFD10A260C4FA3',
         date           => 953180097,
 	date_string    => '2000-03-16',

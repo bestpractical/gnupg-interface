@@ -16,10 +16,22 @@
 package GnuPG::Signature;
 use Any::Moose;
 
-has [qw( algo_num hex_id user_id_string date date_string expiration_date expiration_date_string )] => (
+has [qw( validity
+         algo_num
+         hex_id
+         user_id_string
+         date
+         date_string
+         expiration_date
+         expiration_date_string )] => (
     isa => 'Any',
     is  => 'rw',
 );
+
+sub is_valid {
+    my $self = shift;
+    return $self->validity eq '!';
+}
 
 __PACKAGE__->meta->make_immutable;
 
@@ -51,11 +63,25 @@ They embody various aspects of a GnuPG signature on a key.
 This methods creates a new object.  The optional arguments are
 initialization of data members.
 
+=item is_valid()
+
+Returns 1 if GnuPG was able to cryptographically verify the signature,
+otherwise 0.
+
 =back
 
 =head1 OBJECT DATA MEMBERS
 
 =over 4
+
+=item validity
+
+A character indicating the cryptographic validity of the key.  GnuPG
+uses at least the following characters: "!" means valid, "-" means not
+valid, "?" means unknown (e.g. if the supposed signing key is not
+present in the local keyring), and "%" means an error occurred (e.g. a
+non-supported algorithm).  See the documentation for --check-sigs in
+gpg(1).
 
 =item algo_num
 
