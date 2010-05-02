@@ -378,6 +378,7 @@ sub get_keys {
     $self->options($new_options);
     $self->options->push_extra_args(
         '--with-colons',
+        '--fixed-list-mode',
         '--with-fingerprint',
         '--with-fingerprint',
     );
@@ -449,12 +450,6 @@ sub get_keys {
                 usage_flags            => $usage_flags,
             );
 
-            $current_signed_item = GnuPG::UserId->new(
-                validity  => $user_id_validity,
-                as_string => unescape_string($user_id_string),
-            );
-
-            $current_key->push_user_ids($current_signed_item);
         }
         elsif ( $record_type eq 'fpr' ) {
             my $hex = $fields[9];
