@@ -406,6 +406,7 @@ sub get_keys {
     require GnuPG::SubKey;
     require GnuPG::Fingerprint;
     require GnuPG::UserId;
+    require GnuPG::UserAttribute;
     require GnuPG::Signature;
 
     while (<$stdout>) {
@@ -491,6 +492,7 @@ sub get_keys {
             );
 
             if ( $current_signed_item->isa('GnuPG::UserId') ||
+                 $current_signed_item->isa('GnuPG::UserAttribute') ||
                  $current_signed_item->isa('GnuPG::SubKey') ) {
                 $current_signed_item->push_signatures($signature);
             }
@@ -507,6 +509,19 @@ sub get_keys {
             );
 
             $current_key->push_user_ids($current_signed_item);
+        }
+        elsif ( $record_type eq 'uat' ) {
+            my ( $validity, $subpacket ) = @fields[ 1, 9 ];
+
+            my ( $subpacket_count, $subpacket_total_size ) = split(/ /,$subpacket);
+
+            $current_signed_item = GnuPG::UserAttribute->new(
+                validity  => $validity,
+                subpacket_count => $subpacket_count,
+                subpacket_total_size => $subpacket_total_size,
+            );
+
+            $current_key->push_user_attributes($current_signed_item);
         }
         elsif ( $record_type eq 'sub' or $record_type eq 'ssb' ) {
             my (

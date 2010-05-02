@@ -18,7 +18,7 @@ use Any::Moose;
 
 BEGIN { extends qw( GnuPG::Key ) }
 
-for my $list (qw(user_ids subkeys)) {
+for my $list (qw(user_ids subkeys user_attributes)) {
     has $list => (
         isa        => 'ArrayRef',
         is         => 'rw',
@@ -77,6 +77,10 @@ in L<GnuPG::Key>.
 =item user_ids
 
 A list of GnuPG::UserId objects associated with this key.
+
+=item user_attributes
+
+A list of GnuPG::UserAttribute objects associated with this key.
 
 =item subkeys
 

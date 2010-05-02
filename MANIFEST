@@ -20,6 +20,7 @@ lib/GnuPG/SecretKey.pm
 lib/GnuPG/Signature.pm
 lib/GnuPG/SubKey.pm
 lib/GnuPG/UserId.pm
+lib/GnuPG/UserAttribute.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
