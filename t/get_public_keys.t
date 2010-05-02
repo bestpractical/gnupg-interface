@@ -29,6 +29,7 @@ TEST
       ( length                 => 1024,
 	algo_num               => 17,
 	hex_id                 => '53AE596EF950DA9C',
+        creation_date          => 949813093,
 	creation_date_string   => '2000-02-06',
 	expiration_date_string => '2002-02-05',
 	owner_trust            => 'f',
@@ -44,18 +45,21 @@ TEST
     my $initial_self_signature = GnuPG::Signature->new
       ( algo_num       => 17,
 	hex_id         => '53AE596EF950DA9C',
+        date           => 949813093,
 	date_string    => '2000-02-06',
       );
     
     my $uid2_signature = GnuPG::Signature->new
       ( algo_num       => 17,
         hex_id         => '53AE596EF950DA9C',
+        date           => 953179891,
         date_string    => '2000-03-16',
       );
     
     my $ftobin_signature = GnuPG::Signature->new
       ( algo_num       => 17,
 	hex_id         => '56FFD10A260C4FA3',
+        date           => 953180097,
 	date_string    => '2000-03-16',
 	);
     
@@ -64,6 +68,7 @@ TEST
 	length                   => 768,
 	algo_num                 => 16,
 	hex_id                   => 'ADB99D9C2E854A6B',
+        creation_date            => 949813119,
 	creation_date_string     => '2000-02-06',
 	expiration_date_string   => '2002-02-05',
         usage_flags              => 'e',

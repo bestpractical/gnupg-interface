@@ -16,7 +16,7 @@
 package GnuPG::Signature;
 use Any::Moose;
 
-has [qw( algo_num hex_id user_id_string date_string )] => (
+has [qw( algo_num hex_id user_id_string date date_string )] => (
     isa => 'Any',
     is  => 'rw',
 );
@@ -73,6 +73,11 @@ This may not be defined if the signing key is not on the local keyring.
 =item date_string
 
 The formatted date the signature was performed on.
+
+=item date
+
+The date the signature was performed, represented as the number of
+seconds since midnight 1970-01-01 UTC.
 
 =back
 

@@ -24,11 +24,11 @@ sub compare
 {
     my ( $self, $other, $deep ) = @_;
     
-    # expiration_date_string was taken out of the following
-    # list because there is a bug in the listing of
+    # expiration_date_string and expiration_date was taken out of the
+    # following list because there is a bug in the listing of
     # expiration dates in 1.0.5
     my @comparison_fields
-      = qw( length algo_num hex_id
+      = qw( length algo_num hex_id creation_date
 	    creation_date_string usage_flags
 	  );
     

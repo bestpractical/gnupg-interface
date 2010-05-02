@@ -22,6 +22,8 @@ has [
         algo_num
         hex_id
         hex_data
+        creation_date
+        expiration_date
         creation_date_string
         expiration_date_string
         fingerprint
@@ -121,6 +123,13 @@ the short hex id, which is 8 hex characters.
 =item expiration_date_string
 
 Formatted date of the key's creation and expiration.
+
+=item creation_date
+
+=item expiration_date
+
+Date of the key's creation and expiration, stored as the number of
+seconds since midnight 1970-01-01 UTC.
 
 =item fingerprint
 
