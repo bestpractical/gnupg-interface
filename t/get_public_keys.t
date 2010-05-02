@@ -42,11 +42,12 @@ TEST
 			       )
       );
     
-    my $initial_self_signature = GnuPG::Signature->new
+    my $subkey_signature = GnuPG::ComparableSignature->new
       ( algo_num       => 17,
 	hex_id         => '53AE596EF950DA9C',
-        date           => 949813093,
-	date_string    => '2000-02-06',
+        date           => 1177086380,
+	date_string    => '2007-04-20',
+        user_id_string => 'GnuPG test key (for testing purposes only)',
       );
     
     my $uid2_signature = GnuPG::Signature->new
@@ -80,7 +81,7 @@ TEST
 			       )
       );
     
-    $subkey->signature( $initial_self_signature );
+    $subkey->push_signatures( $subkey_signature );
     
     $handmade_key->push_subkeys( $subkey );
     

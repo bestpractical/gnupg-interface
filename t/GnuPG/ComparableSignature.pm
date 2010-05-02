@@ -29,7 +29,6 @@ sub compare
     {
 	my $f1 = $self->$field();
 	my $f2 = $other->$field();
-	
 	# don't test for definedness because
 	# all fields should be defined
 	return 0 unless $self->$field() eq $other->$field();

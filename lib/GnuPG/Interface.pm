@@ -488,11 +488,9 @@ sub get_keys {
                 user_id_string => unescape_string($user_id_string),
             );
 
-            if ( $current_signed_item->isa('GnuPG::UserId') ) {
+            if ( $current_signed_item->isa('GnuPG::UserId') ||
+                 $current_signed_item->isa('GnuPG::SubKey') ) {
                 $current_signed_item->push_signatures($signature);
-            }
-            elsif ( $current_signed_item->isa('GnuPG::SubKey') ) {
-                $current_signed_item->signature($signature);
             }
             else {
                 warn "do not know how to handle signature line: $line\n";
