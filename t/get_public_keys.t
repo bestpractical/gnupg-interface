@@ -32,6 +32,7 @@ TEST
 	creation_date_string   => '2000-02-06',
 	expiration_date_string => '2002-02-05',
 	owner_trust            => 'f',
+        usage_flags            => 'scaESCA',
       );
     
     $handmade_key->fingerprint
@@ -65,6 +66,7 @@ TEST
 	hex_id                   => 'ADB99D9C2E854A6B',
 	creation_date_string     => '2000-02-06',
 	expiration_date_string   => '2002-02-05',
+        usage_flags              => 'e',
       );
     
     $subkey->fingerprint

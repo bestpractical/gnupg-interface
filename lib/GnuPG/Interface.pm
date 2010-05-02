@@ -417,7 +417,9 @@ sub get_keys {
             my (
                 $user_id_validity, $key_length, $algo_num, $hex_key_id,
                 $creation_date_string, $expiration_date_string,
-                $local_id, $owner_trust, $user_id_string
+                $local_id, $owner_trust, $user_id_string,
+                $sigclass, #unused
+                $usage_flags,
             ) = @fields[ 1 .. $#fields ];
 
 
@@ -439,6 +441,7 @@ sub get_keys {
                 owner_trust            => $owner_trust,
                 creation_date_string   => $creation_date_string,
                 expiration_date_string => $expiration_date_string,
+                usage_flags            => $usage_flags,
             );
 
             $current_signed_item = GnuPG::UserId->new(
@@ -491,8 +494,10 @@ sub get_keys {
             my (
                 $validity, $key_length, $algo_num, $hex_id,
                 $creation_date_string, $expiration_date_string,
-                $local_id
-            ) = @fields[ 1 .. 7 ];
+                $local_id,
+                $dummy0, $dummy1, $dummy2, #unused
+                $usage_flags,
+            ) = @fields[ 1 .. 11 ];
 
 			$creation_date_string = $self->_downrez_gpg2_date($creation_date_string);
 			$expiration_date_string = $self->_downrez_gpg2_date($expiration_date_string);
@@ -505,6 +510,7 @@ sub get_keys {
                 creation_date_string   => $creation_date_string,
                 expiration_date_string => $expiration_date_string,
                 local_id               => $local_id,
+                usage_flags            => $usage_flags,
                 );
 
             $current_key->push_subkeys($current_signed_item);

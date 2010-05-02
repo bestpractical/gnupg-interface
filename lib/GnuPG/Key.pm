@@ -25,6 +25,7 @@ has [
         creation_date_string
         expiration_date_string
         fingerprint
+        usage_flags
         )
     ] => (
     isa => 'Any',
@@ -91,6 +92,20 @@ Number of bits in the key.
 =item algo_num
 
 They algorithm number that the Key is used for.
+
+=item usage flags
+
+The Key Usage flags associated with this key, represented as a string
+of lower-case letters.  Possible values include: (a) authenticate, (c)
+certify, (e) encrypt, and (s) sign.
+
+A key may have any combination of them in any order.  In addition to
+these letters, the primary key has uppercase versions of the letters
+to denote the _usable_ capabilities of the entire key, and a potential
+letter 'D' to indicate a disabled key.
+
+See "key capabilities" DETAILS from the GnuPG sources for more
+details.
 
 =item hex_data
 

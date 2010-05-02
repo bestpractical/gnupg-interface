@@ -29,7 +29,7 @@ sub compare
     # expiration dates in 1.0.5
     my @comparison_fields
       = qw( length algo_num hex_id
-	    creation_date_string
+	    creation_date_string usage_flags
 	  );
     
     foreach my $field ( @comparison_fields )
