@@ -469,8 +469,9 @@ sub get_keys {
                 $algo_num,              $hex_key_id,
                 $signature_date,
                 $expiration_date,
-                $user_id_string
-            ) = @fields[ 1, 3 .. 6, 9 ];
+                $user_id_string,
+                $sig_type,
+            ) = @fields[ 1, 3 .. 6, 9, 10 ];
 
             my $expiration_date_string;
             if ($expiration_date eq '') {
@@ -479,6 +480,12 @@ sub get_keys {
               $expiration_date_string = $self->_downrez_date($expiration_date);
             }
             my $signature_date_string = $self->_downrez_date($signature_date);
+
+            my ($sig_class, $is_exportable);
+            if ($sig_type =~ /^([[:xdigit:]]{2})([xl])$/ ) {
+              $sig_class = hex($1);
+              $is_exportable = ('x' eq $2);
+            }
 
             my $signature = GnuPG::Signature->new(
                 validity       => $validity,
@@ -489,6 +496,8 @@ sub get_keys {
                 expiration_date => $expiration_date,
                 expiration_date_string => $expiration_date_string,
                 user_id_string => unescape_string($user_id_string),
+                sig_class      => $sig_class,
+                is_exportable  => $is_exportable,
             );
 
             if ( $current_signed_item->isa('GnuPG::UserId') ||

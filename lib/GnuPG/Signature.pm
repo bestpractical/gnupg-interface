@@ -16,14 +16,18 @@
 package GnuPG::Signature;
 use Any::Moose;
 
-has [qw( validity
+has [qw(
+         validity
          algo_num
          hex_id
          user_id_string
          date
          date_string
          expiration_date
-         expiration_date_string )] => (
+         expiration_date_string
+         sig_class
+         is_exportable
+      )] => (
     isa => 'Any',
     is  => 'rw',
 );
@@ -95,6 +99,18 @@ The hex id of the signing key.
 
 The first user id string on the key that made the signature.
 This may not be defined if the signing key is not on the local keyring.
+
+=item sig_class
+
+Signature class.  This is the numeric value of the class of signature.
+
+A table of possible classes of signatures and their numeric types can
+be found at http://tools.ietf.org/html/rfc4880#section-5.2.1
+
+=item is_exportable
+
+returns 0 for local-only signatures, non-zero for exportable
+signatures.
 
 =item date_string
 

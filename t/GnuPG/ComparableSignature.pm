@@ -23,7 +23,7 @@ sub compare
 {
     my ( $self, $other ) = @_;
     
-    my @compared_fields = qw( validity algo_num hex_id date date_string );
+    my @compared_fields = qw( validity algo_num hex_id date date_string is_exportable sig_class );
     
     foreach my $field ( @compared_fields )
     {

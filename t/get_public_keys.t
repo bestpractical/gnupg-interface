@@ -49,6 +49,8 @@ TEST
         date           => 1177086380,
 	date_string    => '2007-04-20',
         user_id_string => 'GnuPG test key (for testing purposes only)',
+        sig_class      => 0x18,
+        is_exportable  => 1,
       );
     
     my $uid2_signature = GnuPG::Signature->new
