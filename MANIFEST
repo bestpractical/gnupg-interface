@@ -75,7 +75,6 @@ test/public-keys/2.0.test
 test/public-keys/2.1.test
 test/public-keys/2.out
 test/pubring.gpg
-test/random_seed
 test/secret-keys/1.0.test
 test/secret-keys/1.out
 test/secret-keys/2.0.test
