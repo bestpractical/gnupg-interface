@@ -48,8 +48,14 @@ sub compare
 sub _deeply_compare
 {
     my ( $self, $other ) = @_;
+    my $i;
+
+    for ( $i = 0; $i < scalar(@{$self->revocations}); $i++ ) {
+      return 0
+        unless $self->revocations->[$i]->compare($other->revocations->[$i], 1);
+    }
+
     bless $self->fingerprint(), 'GnuPG::ComparableFingerprint';
-    
     return ( $self->fingerprint->compare( $other->fingerprint() ) );
 }
 

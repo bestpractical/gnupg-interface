@@ -26,11 +26,21 @@ has signatures => (
     is        => 'rw',
     default   => sub { [] },
 );
+has revocations => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+);
 
 sub push_signatures {
     my $self = shift;
     push @{ $self->signatures }, @_;
 }
+sub push_revocations {
+    my $self = shift;
+    push @{ $self->revocations }, @_;
+}
+
 
 # DEPRECATED
 sub user_id_string {
@@ -89,6 +99,12 @@ See GnuPG's DETAILS file for details.
 
 A list of GnuPG::Signature objects embodying the signatures
 on this user id.
+
+=item revocations
+
+A list of revocations associated with this User ID, stored as
+GnuPG::Signature objects (since revocations are a type of
+certification as well).
 
 =back
 

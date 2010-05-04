@@ -463,7 +463,9 @@ sub get_keys {
             my $f = GnuPG::Fingerprint->new( as_hex_string => $hex );
             $current_fingerprinted_key->fingerprint($f);
         }
-        elsif ( $record_type eq 'sig' ) {
+        elsif ( $record_type eq 'sig' or
+                $record_type eq 'rev'
+              ) {
             my (
                 $validity,
                 $algo_num,              $hex_key_id,
@@ -500,12 +502,19 @@ sub get_keys {
                 is_exportable  => $is_exportable,
             );
 
-            if ( $current_signed_item->isa('GnuPG::UserId') ||
-                 $current_signed_item->isa('GnuPG::UserAttribute') ||
-                 $current_signed_item->isa('GnuPG::SubKey') ) {
+            if ($record_type eq 'sig') {
+              if ( $current_signed_item->isa('GnuPG::UserId') ||
+                   $current_signed_item->isa('GnuPG::UserAttribute') ||
+                   $current_signed_item->isa('GnuPG::SubKey') ) {
                 $current_signed_item->push_signatures($signature);
-            }
-            else {
+              }
+            } elsif ($record_type eq 'rev') {
+              if ( $current_signed_item->isa('GnuPG::Key') ||
+                   $current_signed_item->isa('GnuPG::UserId') ||
+                   $current_signed_item->isa('GnuPG::UserAttribute')) {
+                $current_signed_item->push_revocations($signature);
+              }
+            } else {
                 warn "do not know how to handle signature line: $line\n";
             }
         }

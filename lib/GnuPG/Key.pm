@@ -34,6 +34,17 @@ has [
     is  => 'rw',
     );
 
+has revocations => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+);
+
+sub push_revocations {
+    my $self = shift;
+    push @{ $self->revocations }, @_;
+}
+
 sub short_hex_id {
     my ($self) = @_;
     return substr $self->hex_id(), -8;
@@ -136,6 +147,13 @@ expiration_date will return undef.
 =item fingerprint
 
 A GnuPG::Fingerprint object.
+
+=item revocations
+
+A list of revocations associated with this key, stored as
+GnuPG::Signature objects (since revocations are a type of
+certification as well).  Note that a revocation of a primary key has a
+different semantic meaning than a revocation associated with a subkey.
 
 =back
 

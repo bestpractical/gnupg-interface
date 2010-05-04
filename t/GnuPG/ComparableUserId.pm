@@ -42,14 +42,20 @@ sub _deeply_compare
     return 0 unless @self_signatures == @other_signatures;
     
     my $num_sigs = @self_signatures;
+    my $i;
     
-    for ( my $i = 0; $i < $num_sigs; $i++ )
+    for ( $i = 0; $i < $num_sigs; $i++ )
     {
-	
 	return 0
 	  unless $self_signatures[$i]->compare( $other_signatures[$i], 1 );
     }
-    
+
+    # FIXME: what if the other item has revocations that we don't have?
+    for ( $i = 0; $i < scalar(@{$self->revocations}); $i++ ) {
+      return 0
+        unless $self->revocations()->[$i]->compare($other->revocations()->[$i], 1);
+    }
+
     return 1;
 }
 

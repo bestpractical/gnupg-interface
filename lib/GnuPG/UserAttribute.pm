@@ -27,10 +27,19 @@ has signatures => (
     is        => 'rw',
     default   => sub { [] },
 );
+has revocations => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+);
 
 sub push_signatures {
     my $self = shift;
     push @{ $self->signatures }, @_;
+}
+sub push_revocations {
+    my $self = shift;
+    push @{ $self->revocations }, @_;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -89,6 +98,12 @@ A scalar holding the total byte count of all attribute subpackets.
 
 A list of GnuPG::Signature objects embodying the signatures
 on this user attribute.
+
+=item revocations
+
+A list of revocations associated with this User Attribute, stored as
+GnuPG::Signature objects (since revocations are a type of
+certification as well).
 
 =back
 
