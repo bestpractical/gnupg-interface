@@ -97,7 +97,7 @@ sub copy {
 
     foreach my $field ( BOOLEANS, SCALARS, LISTS ) {
         my $value = $self->$field();
-        next unless $value;
+        next unless defined $value;
         $new->$field($value);
     }
 
