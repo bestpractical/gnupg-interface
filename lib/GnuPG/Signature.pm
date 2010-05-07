@@ -49,8 +49,8 @@ GnuPG::Signature - GnuPG Key Signature Objects
 
 =head1 SYNOPSIS
 
-  # assumes a GnuPG::SubKey object in $key
-  my $signing_id = $key->signature->hex_id();
+  # assumes a GnuPG::Key or GnuPG::UserID or GnuPG::UserAttribute object in $signed
+  my $signing_id = $signed->signatures->[0]->hex_id();
 
 =head1 DESCRIPTION
 
