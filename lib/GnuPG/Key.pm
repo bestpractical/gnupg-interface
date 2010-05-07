@@ -34,6 +34,17 @@ has [
     is  => 'rw',
     );
 
+has signatures => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+);
+
+sub push_signatures {
+    my $self = shift;
+    push @{ $self->signatures }, @_;
+}
+
 has revocations => (
     isa       => 'ArrayRef',
     is        => 'rw',
@@ -147,6 +158,13 @@ expiration_date will return undef.
 =item fingerprint
 
 A GnuPG::Fingerprint object.
+
+=item signatures
+
+A list of GnuPG::Signature objects embodying the signatures on this
+key.  For subkeys, the signatures are usually subkey-binding
+signatures.  For primary keys, the signatures are statements about the
+key itself.
 
 =item revocations
 

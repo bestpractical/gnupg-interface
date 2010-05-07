@@ -23,17 +23,6 @@ has [qw( validity   owner_trust  local_id  )] => (
     is  => 'rw',
 );
 
-has signatures => (
-    isa       => 'ArrayRef',
-    is        => 'rw',
-    default   => sub { [] },
-);
-
-sub push_signatures {
-    my $self = shift;
-    push @{ $self->signatures }, @_;
-}
-
 # DEPRECATED!
 # return the last signature, if present.  Or push in a new signature,
 # if one is supplied.
@@ -105,14 +94,9 @@ See GnuPG's DETAILS file for details.
 * DEPRECATED*
 
 A GnuPG::Signature object holding the representation of the signature
-on this key.  Please use signatures (see below) instead of signature.
-Using signature, you will get an arbitrary signature from the set of
-available signatures.
-
-=item signatures
-
-A list of GnuPG::Signature objects embodying the binding signatures on
-this subkey.
+on this key.  Please use signatures (see L<GnuPG::Key>) instead of
+signature.  Using signature, you will get an arbitrary signature from
+the set of available signatures.
 
 =back
 

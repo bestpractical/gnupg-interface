@@ -457,6 +457,7 @@ sub get_keys {
                 usage_flags            => $usage_flags,
             );
 
+            $current_signed_item = $current_key;
         }
         elsif ( $record_type eq 'fpr' ) {
             my $hex = $fields[9];
@@ -502,20 +503,16 @@ sub get_keys {
                 is_exportable  => $is_exportable,
             );
 
-            if ($record_type eq 'sig') {
-              if ( $current_signed_item->isa('GnuPG::UserId') ||
-                   $current_signed_item->isa('GnuPG::UserAttribute') ||
-                   $current_signed_item->isa('GnuPG::SubKey') ) {
+            if ( $current_signed_item->isa('GnuPG::Key') ||
+                 $current_signed_item->isa('GnuPG::UserId') ||
+                 $current_signed_item->isa('GnuPG::UserAttribute')) {
+              if ($record_type eq 'sig') {
                 $current_signed_item->push_signatures($signature);
-              }
-            } elsif ($record_type eq 'rev') {
-              if ( $current_signed_item->isa('GnuPG::Key') ||
-                   $current_signed_item->isa('GnuPG::UserId') ||
-                   $current_signed_item->isa('GnuPG::UserAttribute')) {
+              } elsif ($record_type eq 'rev') {
                 $current_signed_item->push_revocations($signature);
               }
             } else {
-                warn "do not know how to handle signature line: $line\n";
+              warn "do not know how to handle signature line: $line\n";
             }
         }
         elsif ( $record_type eq 'uid' ) {
