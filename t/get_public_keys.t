@@ -69,6 +69,24 @@ TEST
 	date_string    => '2000-03-16',
 	);
     
+    my $designated_revoker_sig = GnuPG::Signature->new
+      ( validity       => '!',
+        algo_num       => 17,
+	hex_id         => '53AE596EF950DA9C',
+        date           => 978325209,
+	date_string    => '2001-01-01',
+        sig_class      => 0x1f,
+        is_exportable  => 1
+	);
+
+    my $revoker = GnuPG::Revoker->new
+      ( algo_num       => 17,
+        class          => 0x80,
+	fingerprint    => GnuPG::Fingerprint->new( as_hex_string =>
+                                                   '4F863BBBA8166F0A340F600356FFD10A260C4FA3'),
+	);
+    $revoker->push_signatures($designated_revoker_sig);
+    
     my $subkey = GnuPG::SubKey->new
       ( validity                 => 'u',
 	length                   => 768,
@@ -89,6 +107,7 @@ TEST
     $subkey->push_signatures( $subkey_signature );
     
     $handmade_key->push_subkeys( $subkey );
+    $handmade_key->push_revokers( $revoker );
     
     $handmade_key->compare( $given_key );
 };

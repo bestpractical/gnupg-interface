@@ -408,6 +408,7 @@ sub get_keys {
     require GnuPG::UserId;
     require GnuPG::UserAttribute;
     require GnuPG::Signature;
+    require GnuPG::Revoker;
 
     while (<$stdout>) {
         my $line = $_;
@@ -505,6 +506,7 @@ sub get_keys {
 
             if ( $current_signed_item->isa('GnuPG::Key') ||
                  $current_signed_item->isa('GnuPG::UserId') ||
+                 $current_signed_item->isa('GnuPG::Revoker') ||
                  $current_signed_item->isa('GnuPG::UserAttribute')) {
               if ($record_type eq 'sig') {
                 $current_signed_item->push_signatures($signature);
@@ -570,6 +572,19 @@ sub get_keys {
                 );
 
             $current_primary_key->push_subkeys($current_signed_item);
+        }
+        elsif ($record_type eq 'rvk') {
+          my ($algo_num, $fpr, $class) = @fields[ 3,9,10 ];
+          my $rvk = GnuPG::Revoker->new(
+           fingerprint => GnuPG::Fingerprint->new( as_hex_string => $fpr ),
+           algo_num    => ($algo_num + 0),
+           class       => hex($class),
+          );
+          # pushing to either primary key or subkey, to handle
+          # designated revokers to the subkeys too:
+          $current_key->push_revokers($rvk);
+          # revokers should be bound to the key with signatures:
+          $current_signed_item = $rvk;
         }
         elsif ( $record_type ne 'tru' ) {
             warn "unknown record type $record_type";

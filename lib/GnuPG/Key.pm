@@ -56,6 +56,17 @@ sub push_revocations {
     push @{ $self->revocations }, @_;
 }
 
+has revokers => (
+    isa       => 'ArrayRef',
+    is        => 'rw',
+    default   => sub { [] },
+);
+
+sub push_revokers {
+    my $self = shift;
+    push @{ $self->revokers }, @_;
+}
+
 sub short_hex_id {
     my ($self) = @_;
     return substr $self->hex_id(), -8;
@@ -173,10 +184,18 @@ GnuPG::Signature objects (since revocations are a type of
 certification as well).  Note that a revocation of a primary key has a
 different semantic meaning than a revocation associated with a subkey.
 
+=item revokers
+
+A list of GnuPG::Revoker objects associated with this key, indicating
+other keys which are allowed to revoke certifications made by this
+key.
+
 =back
 
 =head1 SEE ALSO
 
 L<GnuPG::Fingerprint>,
+L<GnuPG::Signature>,
+L<GnuPG::Revoker>,
 
 =cut

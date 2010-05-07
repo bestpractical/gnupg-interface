@@ -60,6 +60,11 @@ sub _deeply_compare
         unless $self->revocations->[$i]->compare($other->revocations->[$i], 1);
     }
 
+    for ( $i = 0; $i < scalar(@{$self->revokers}); $i++ ) {
+      return 0
+        unless $self->revokers->[$i]->compare($other->revokers->[$i], 1);
+    }
+
     bless $self->fingerprint(), 'GnuPG::Fingerprint';
     return ( $self->fingerprint->compare( $other->fingerprint() ) );
 }
