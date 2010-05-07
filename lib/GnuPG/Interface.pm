@@ -397,9 +397,9 @@ sub get_keys {
     );
 
     my @returned_keys;
-    my $current_key;
+    my $current_primary_key;
     my $current_signed_item;
-    my $current_fingerprinted_key;
+    my $current_key;
 
     require GnuPG::PublicKey;
     require GnuPG::SecretKey;
@@ -418,8 +418,8 @@ sub get_keys {
         my $record_type = $fields[0];
 
         if ( $record_type eq 'pub' or $record_type eq 'sec' ) {
-            push @returned_keys, $current_key
-                if $current_key;
+            push @returned_keys, $current_primary_key
+                if $current_primary_key;
 
             my (
                 $user_id_validity, $key_length, $algo_num, $hex_key_id,
@@ -439,12 +439,12 @@ sub get_keys {
             }
             my $creation_date_string = $self->_downrez_date($creation_date);
 
-            $current_key = $current_fingerprinted_key
+            $current_primary_key = $current_key
                 = $record_type eq 'pub'
                 ? GnuPG::PublicKey->new()
                 : GnuPG::SecretKey->new();
 
-            $current_key->hash_init(
+            $current_primary_key->hash_init(
                 length                 => $key_length,
                 algo_num               => $algo_num,
                 hex_id                 => $hex_key_id,
@@ -457,12 +457,12 @@ sub get_keys {
                 usage_flags            => $usage_flags,
             );
 
-            $current_signed_item = $current_key;
+            $current_signed_item = $current_primary_key;
         }
         elsif ( $record_type eq 'fpr' ) {
             my $hex = $fields[9];
             my $f = GnuPG::Fingerprint->new( as_hex_string => $hex );
-            $current_fingerprinted_key->fingerprint($f);
+            $current_key->fingerprint($f);
         }
         elsif ( $record_type eq 'sig' or
                 $record_type eq 'rev'
@@ -523,7 +523,7 @@ sub get_keys {
                 as_string => unescape_string($user_id_string),
             );
 
-            $current_key->push_user_ids($current_signed_item);
+            $current_primary_key->push_user_ids($current_signed_item);
         }
         elsif ( $record_type eq 'uat' ) {
             my ( $validity, $subpacket ) = @fields[ 1, 9 ];
@@ -536,7 +536,7 @@ sub get_keys {
                 subpacket_total_size => $subpacket_total_size,
             );
 
-            $current_key->push_user_attributes($current_signed_item);
+            $current_primary_key->push_user_attributes($current_signed_item);
         }
         elsif ( $record_type eq 'sub' or $record_type eq 'ssb' ) {
             my (
@@ -555,7 +555,7 @@ sub get_keys {
             }
             my $creation_date_string = $self->_downrez_date($creation_date);
 
-            $current_signed_item = $current_fingerprinted_key
+            $current_signed_item = $current_key
                 = GnuPG::SubKey->new(
                 validity               => $validity,
                 length                 => $key_length,
@@ -569,7 +569,7 @@ sub get_keys {
                 usage_flags            => $usage_flags,
                 );
 
-            $current_key->push_subkeys($current_signed_item);
+            $current_primary_key->push_subkeys($current_signed_item);
         }
         elsif ( $record_type ne 'tru' ) {
             warn "unknown record type $record_type";
@@ -578,8 +578,8 @@ sub get_keys {
 
     waitpid $pid, 0;
 
-    push @returned_keys, $current_key
-        if $current_key;
+    push @returned_keys, $current_primary_key
+        if $current_primary_key;
 
     $self->options($saved_options);
 
