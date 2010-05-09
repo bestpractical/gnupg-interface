@@ -17,7 +17,7 @@ package GnuPG::ComparableSubKey;
 
 use strict;
 use GnuPG::ComparableSignature;
-use GnuPG::ComparableFingerprint;
+use GnuPG::Fingerprint;
 
 use base qw( GnuPG::SubKey GnuPG::ComparableKey );
 
@@ -41,7 +41,7 @@ sub compare
             unless $self_signatures[$i]->compare( $other_signatures[$i], 1 );
         }
 
-	bless $self->fingerprint, 'GnuPG::ComparableFingerprint'
+	bless $self->fingerprint, 'GnuPG::Fingerprint'
 	  if $self->fingerprint();
 	
 	foreach my $field ( qw( fingerprint ) )

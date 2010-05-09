@@ -55,7 +55,7 @@ sub _deeply_compare
         unless $self->revocations->[$i]->compare($other->revocations->[$i], 1);
     }
 
-    bless $self->fingerprint(), 'GnuPG::ComparableFingerprint';
+    bless $self->fingerprint(), 'GnuPG::Fingerprint';
     return ( $self->fingerprint->compare( $other->fingerprint() ) );
 }
 

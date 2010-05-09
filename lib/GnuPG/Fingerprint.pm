@@ -22,6 +22,12 @@ has as_hex_string => (
     is  => 'rw',        
 );
 
+sub compare {
+  my ($self, $other) = @_;
+  return 0 unless $other->isa('GnuPG::Fingerprint');
+  return $self->as_hex_string() eq $other->as_hex_string();
+}
+
 # DEPRECATED
 sub hex_data
 {
@@ -62,6 +68,11 @@ This methods creates a new object.  The optional arguments are
 initialization of data members.
 
 =item hash_init( I<%args> ).
+
+=item compare( I<$other> )
+
+Returns non-zero only when this fingerprint is identical to the other
+GnuPG::Fingerprint.
 
 =back
 
