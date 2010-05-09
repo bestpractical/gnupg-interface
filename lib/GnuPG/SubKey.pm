@@ -42,10 +42,9 @@ sub signature {
   my $argcount = @_;
 
   if ($argcount) {
-    carp("Please do not use GnuPG::SubKey::signature().  Use GnuPG::SubKey::push_signatures() instead, since subkeys can have more than one signature.");
+    @{$self->signatures} = ();
     $self->push_signatures(@_);
   } else {
-    carp("Please do not use GnuPG::SubKey::signature.  Use GnuPG::SubKey::signatures instead, since subkeys can have more than one signature.");
     my $sigcount = @{$self->signatures};
     if ($sigcount) {
       return $self->signatures->[$sigcount-1];
