@@ -57,7 +57,11 @@ sub compare {
 
   return 0 unless $self->fingerprint->compare($other->fingerprint);
 
-  if ($deep) {
+  return 0 unless @{$self->signatures} == @{$other->signatures};
+
+  # FIXME: is it actually wrong if the associated signatures come out
+  # in a different order on the two compared designated revokers?
+  if (defined $deep && $deep) {
     for ( my $i = 0; $i < scalar(@{$self->signatures}); $i++ ) {
       return 0
         unless $self->signatures->[$i]->compare($other->signatures->[$i], 1);
@@ -106,6 +110,13 @@ If this is non-zero, the information should be treated as "sensitive".
 Please see http://tools.ietf.org/html/rfc4880#section-5.2.3.15 for
 more explanation.
 
+=item compare( I<$other>, I<$deep> )
+
+Returns non-zero only when this designated revoker is identical to the
+other GnuPG::Revoker.  If $deep is present and non-zero, the revokers'
+signatures will also be compared.
+
+
 =back
 
 =head1 OBJECT DATA MEMBERS
@@ -125,9 +136,11 @@ The numeric identifier of the algorithm of the revoker's key.
 =item signatures
 
 A list of GnuPG::Signature objects which cryptographically bind the
-designated revoker to the primary key.  A valid revoker designation
-should always have a valid signature associated with it from the
-relevant key doing the designation (not from the revoker's key).
+designated revoker to the primary key.  If the material was
+instantiated using the *_with_sigs() functions from GnuPG::Interface,
+then a valid revoker designation should have a valid signature
+associated with it from the relevant key doing the designation (not
+from the revoker's key).
 
 Note that designated revoker certifications are themselves
 irrevocable, so there is no analogous list of revocations in a
@@ -137,6 +150,7 @@ GnuPG::Revoker object.
 
 =head1 SEE ALSO
 
+L<GnuPG::Interface>,
 L<GnuPG::Fingerprint>,
 L<GnuPG::Key>,
 L<GnuPG::Signature>,
