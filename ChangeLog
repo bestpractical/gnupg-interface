@@ -1,3 +1,35 @@
+0.42_01 Mon May 10 10:50:49 EDT 2010
+    GnuPG::Revoker: improve docs, compare() should fail if the signature counts differ - dkg
+    Handle revoker packets (rvk) - dkg
+    Move compare() into GnuPG::Signature, got rid of t/GnuPG/ComparableSignature.pm - dkg
+    Move signature comparison into ComparableKey.pm instead of ComparableSubKey.pm - dkg
+    Move fingerprint comparison directly into GnuPG::Fingerprint - dkg
+    Change around some variable names for consistency's sake:
+      $current_key becomes $current_primary_key
+      $current_fingerprinted_key becomes $current_key  -dkg
+    Fixed synopsis example in GnuPG::Signature pod - dkg
+    Allow for primary key to have per-key (useful for signatures of class 0x1f, see http://tools.ietf.org/html/rfc4880#section-5.2.1) - dkg
+    Add revocations to keys and user ids and user attributes - dkg
+    Add signature class and exportability to GnuPG::Signature - dkg
+    Introduced GnuPG::UserAttribute to handle uat packets - dkg
+    Actually check validity of signatures and report them - dkg
+    Support more than 1 signature over each subkey - dkg
+    Do not bother shipping test/random_seed - dkg
+    Fix copy method of GnuPG::Options.
+     The result of not checking for definedness here is to never copy the
+     meta_immutable value successfully (as that is true by default).  This led
+     to a FTBFS (failure to build from source) when running non-interactively.
+    
+     See also:  http://bugs.debian.org/549743  - Tim Retout
+    Expose signature expiration times - dkg
+    Take advantage of --fixed-list-mode and report timestamps at 1Hz precision instead of daily precision - dkg
+    Always use --fixed-list-mode for consistency and better granularity of data - dkg
+    Unescape strings to handle User IDs with colons in them - dkg
+    Add usage_flags to keys - dkg
+    Several doc patches from Daniel Kahn Gillmor 
+    Fix for documented typos reported by SYSMON Fixes rt.cpan.org#50377 - jesse
+    Fix POD errors - alexmv
+
 0.42 Wed Sep 30 23:20:58 JST 2009
 
 	* Support for GPG2
