@@ -50,6 +50,11 @@ sub _deeply_compare
     my ( $self, $other ) = @_;
     my $i;
 
+    for ( $i = 0; $i < scalar(@{$self->signatures}); $i++ ) {
+      return 0
+        unless $self->signatures->[$i]->compare($other->signatures->[$i], 1);
+    }
+
     for ( $i = 0; $i < scalar(@{$self->revocations}); $i++ ) {
       return 0
         unless $self->revocations->[$i]->compare($other->revocations->[$i], 1);

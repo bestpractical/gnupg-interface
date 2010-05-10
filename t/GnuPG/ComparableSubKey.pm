@@ -27,20 +27,6 @@ sub compare
     
     if ( $deep )
     {
-
-      my @self_signatures  = @{$self->signatures()};
-      my @other_signatures = @{$other->signatures()};
-
-      return 0 unless @self_signatures == @other_signatures;
-
-      my $num_sigs = @self_signatures;
-
-      for ( my $i = 0; $i < $num_sigs; $i++ )
-        {
-          return 0
-            unless $self_signatures[$i]->compare( $other_signatures[$i], 1 );
-        }
-
 	bless $self->fingerprint, 'GnuPG::Fingerprint'
 	  if $self->fingerprint();
 	
