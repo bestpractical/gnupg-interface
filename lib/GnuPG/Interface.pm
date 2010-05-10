@@ -26,7 +26,7 @@ use IO::Handle;
 use GnuPG::Options;
 use GnuPG::Handles;
 
-$VERSION = '0.42';
+$VERSION = '0.42_01';
 
 has $_ => (
     isa     => 'Any',
