@@ -42,7 +42,7 @@ TEST
 			       )
       );
     
-    my $subkey_signature = GnuPG::ComparableSignature->new
+    my $subkey_signature = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
 	hex_id         => '53AE596EF950DA9C',

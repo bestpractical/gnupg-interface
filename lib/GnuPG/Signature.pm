@@ -37,6 +37,31 @@ sub is_valid {
     return $self->validity eq '!';
 }
 
+sub compare {
+  my ($self, $other) = @_;
+
+  my @compared_fields = qw(
+                            validity
+                            algo_num
+                            hex_id
+                            date
+                            date_string
+                            sig_class
+                            is_exportable
+                         );
+
+  foreach my $field ( @compared_fields ) {
+    return 0 unless $self->$field eq $other->$field;
+  }
+  # check for expiration if present?
+  return 0 unless (defined $self->expiration_date) == (defined $other->expiration_date);
+  if (defined $self->expiration_date) {
+    return 0 unless (($self->expiration_date == $other->expiration_date) ||
+      ($self->expiration_date_string eq $other->expiration_date_string));
+  }
+  return 1;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -71,6 +96,11 @@ initialization of data members.
 
 Returns 1 if GnuPG was able to cryptographically verify the signature,
 otherwise 0.
+
+=item compare( I<$other> )
+
+Returns non-zero only when this Signature is identical to the other
+GnuPG::Signature.
 
 =back
 

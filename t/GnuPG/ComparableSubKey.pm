@@ -16,7 +16,6 @@
 package GnuPG::ComparableSubKey;
 
 use strict;
-use GnuPG::ComparableSignature;
 use GnuPG::Fingerprint;
 
 use base qw( GnuPG::SubKey GnuPG::ComparableKey );
