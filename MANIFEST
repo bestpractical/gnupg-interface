@@ -16,12 +16,12 @@ lib/GnuPG/Key.pm
 lib/GnuPG/Options.pm
 lib/GnuPG/PrimaryKey.pm
 lib/GnuPG/PublicKey.pm
+lib/GnuPG/Revoker.pm
 lib/GnuPG/SecretKey.pm
 lib/GnuPG/Signature.pm
 lib/GnuPG/SubKey.pm
-lib/GnuPG/UserId.pm
 lib/GnuPG/UserAttribute.pm
-lib/GnuPG/Revoker.pm
+lib/GnuPG/UserId.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -38,12 +38,10 @@ t/export_keys.t
 t/Fingerprint.t
 t/get_public_keys.t
 t/get_secret_keys.t
-t/GnuPG/ComparableFingerprint.pm
 t/GnuPG/ComparableKey.pm
 t/GnuPG/ComparablePrimaryKey.pm
 t/GnuPG/ComparablePublicKey.pm
 t/GnuPG/ComparableSecretKey.pm
-t/GnuPG/ComparableSignature.pm
 t/GnuPG/ComparableSubKey.pm
 t/GnuPG/ComparableUserId.pm
 t/import_keys.t
@@ -84,5 +82,4 @@ test/secret-keys/2.out
 test/secring.gpg
 test/signed.1.asc
 test/temp
-test/trustdb.gpg
 THANKS
