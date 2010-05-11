@@ -10,7 +10,7 @@ use lib './t';
 use MyTest;
 use MyTestSpecific;
 
-use GnuPG::ComparableSecretKey;
+use GnuPG::ComparablePrimaryKey;
 
 my ( $given_key, $handmade_key );
 
@@ -24,7 +24,7 @@ TEST
     
     $given_key = shift @returned_keys;
     
-    $handmade_key = GnuPG::ComparableSecretKey->new
+    $handmade_key = GnuPG::ComparablePrimaryKey->new
       ( length                 => 1024,
 	algo_num               => 17,
 	hex_id                 => '53AE596EF950DA9C',

@@ -40,8 +40,6 @@ t/get_public_keys.t
 t/get_secret_keys.t
 t/GnuPG/ComparableKey.pm
 t/GnuPG/ComparablePrimaryKey.pm
-t/GnuPG/ComparablePublicKey.pm
-t/GnuPG/ComparableSecretKey.pm
 t/GnuPG/ComparableSubKey.pm
 t/import_keys.t
 t/Interface.t
