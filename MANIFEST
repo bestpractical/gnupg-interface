@@ -43,7 +43,6 @@ t/GnuPG/ComparablePrimaryKey.pm
 t/GnuPG/ComparablePublicKey.pm
 t/GnuPG/ComparableSecretKey.pm
 t/GnuPG/ComparableSubKey.pm
-t/GnuPG/ComparableUserId.pm
 t/import_keys.t
 t/Interface.t
 t/list_public_keys.t

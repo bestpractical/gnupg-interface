@@ -41,6 +41,34 @@ sub push_revocations {
     push @{ $self->revocations }, @_;
 }
 
+sub compare {
+  my ( $self, $other, $deep ) = @_;
+
+  my @comparison_ints = qw( validity as_string );
+
+  foreach my $field ( @comparison_ints ) {
+    return 0 unless $self->$field() eq $other->$field();
+  }
+
+  return 0 unless @{$self->signatures} == @{$other->signatures};
+  return 0 unless @{$self->revocations} == @{$other->revocations};
+
+  # FIXME: is it actually wrong if the associated signatures come out
+  # in a different order on the two compared designated revokers?
+  if (defined $deep && $deep) {
+    for ( my $i = 0; $i < scalar(@{$self->signatures}); $i++ ) {
+      return 0
+        unless $self->signatures->[$i]->compare($other->signatures->[$i], 1);
+    }
+    for ( my $i = 0; $i < scalar(@{$self->revocations}); $i++ ) {
+      return 0
+        unless $self->revocations->[$i]->compare($other->revocations->[$i], 1);
+    }
+  }
+
+  return 1;
+}
+
 
 # DEPRECATED
 sub user_id_string {
@@ -78,6 +106,12 @@ objects.
 
 This methods creates a new object.  The optional arguments are
 initialization of data members;
+
+=item compare( I<$other>, I<$deep> )
+
+Returns non-zero only when this User ID is identical to the other
+GnuPG::UserID.  If $deep is present and non-zero, the User ID's
+signatures and revocations will also be compared.
 
 =back
 
