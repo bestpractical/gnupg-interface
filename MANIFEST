@@ -38,9 +38,6 @@ t/export_keys.t
 t/Fingerprint.t
 t/get_public_keys.t
 t/get_secret_keys.t
-t/GnuPG/ComparableKey.pm
-t/GnuPG/ComparablePrimaryKey.pm
-t/GnuPG/ComparableSubKey.pm
 t/import_keys.t
 t/Interface.t
 t/list_public_keys.t

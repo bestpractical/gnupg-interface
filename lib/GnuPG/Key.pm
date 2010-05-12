@@ -34,7 +34,12 @@ has [
     is  => 'rw',
     );
 
-has signatures => (
+has [
+     qw(
+         signatures
+         revokers
+         revocations
+      )] => (
     isa       => 'ArrayRef',
     is        => 'rw',
     default   => sub { [] },
@@ -45,22 +50,10 @@ sub push_signatures {
     push @{ $self->signatures }, @_;
 }
 
-has revocations => (
-    isa       => 'ArrayRef',
-    is        => 'rw',
-    default   => sub { [] },
-);
-
 sub push_revocations {
     my $self = shift;
     push @{ $self->revocations }, @_;
 }
-
-has revokers => (
-    isa       => 'ArrayRef',
-    is        => 'rw',
-    default   => sub { [] },
-);
 
 sub push_revokers {
     my $self = shift;
@@ -70,6 +63,59 @@ sub push_revokers {
 sub short_hex_id {
     my ($self) = @_;
     return substr $self->hex_id(), -8;
+}
+
+sub compare {
+  my ($self, $other, $deep) = @_;
+
+  my @string_comparisons = qw(
+    length
+    algo_num
+    hex_id
+    creation_date
+    creation_date_string
+    usage_flags
+                           );
+
+  my $field;
+  foreach $field (@string_comparisons) {
+    return 0 unless $self->$field eq $other->$field;
+  }
+
+  my @can_be_undef = qw(
+    hex_data
+    expiration_date
+    expiration_date_string
+  );
+  foreach $field (@can_be_undef) {
+    return 0 unless (defined $self->$field) == (defined $other->$field);
+    if (defined $self->$field) {
+      return 0 unless $self->$field eq $other->$field;
+    }
+  }
+  my @objs = qw(
+    fingerprint
+  );
+  foreach $field (@objs) {
+    return 0 unless $self->$field->compare($other->$field, $deep);
+  }
+
+  if (defined $deep && $deep) {
+    my @lists = qw(
+      signatures
+      revokers
+      revocations
+                 );
+
+    foreach my $list (@lists) {
+      return 0 unless @{$self->$list} == @{$other->$list};
+      for ( my $i = 0; $i < scalar(@{$self->$list}); $i++ ) {
+        return 0
+          unless $self->$list->[$i]->compare($other->$list->[$i], $deep);
+      }
+    }
+  }
+  return 1;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -113,6 +159,12 @@ initialization of data members.
 
 This returns the commonly-used short, 8 character short hex id
 of the key.
+
+=item compare( I<$other>, I<$deep> )
+
+Returns non-zero only when this Key is identical to the other
+GnuPG::Key.  If $deep is present and non-zero, the key's associated
+signatures, revocations, and revokers will also be compared.
 
 =back
 

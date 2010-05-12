@@ -10,7 +10,7 @@ use lib './t';
 use MyTest;
 use MyTestSpecific;
 
-use GnuPG::ComparablePrimaryKey;
+use GnuPG::PrimaryKey;
 
 my ( $given_key, $handmade_key );
 
@@ -24,14 +24,13 @@ TEST
     
     $given_key = shift @returned_keys;
     
-    $handmade_key = GnuPG::ComparablePrimaryKey->new
+    $handmade_key = GnuPG::PrimaryKey->new
       ( length                 => 1024,
 	algo_num               => 17,
 	hex_id                 => '53AE596EF950DA9C',
         creation_date          => 949813093,
 	creation_date_string   => '2000-02-06',
-	expiration_date_string => '2002-02-05',
-	owner_trust            => 'f',
+	owner_trust            => '', # secret keys do not report ownertrust?
         usage_flags            => 'scaESCA',
       );
     
@@ -40,7 +39,14 @@ TEST
 				 '93AFC4B1B0288A104996B44253AE596EF950DA9C',
 			       )
       );
-    
+
+    $handmade_key->push_user_ids(
+      GnuPG::UserId->new( as_string => 'GnuPG test key (for testing purposes only)',
+                          validity => ''), # secret keys do not report uid validity?
+      GnuPG::UserId->new( as_string => 'Foo Bar (1)',
+                          validity => '')); # secret keys do not report uid validity?
+
+
     my $subkey = GnuPG::SubKey->new
       ( validity                 => 'u',
 	length                   => 768,
@@ -48,7 +54,6 @@ TEST
 	hex_id                   => 'ADB99D9C2E854A6B',
         creation_date            => 949813119,
 	creation_date_string     => '2000-02-06',
-	expiration_date_string   => '2002-02-05',
         usage_flags              => 'e',
       );
     

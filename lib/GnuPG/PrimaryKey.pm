@@ -38,6 +38,40 @@ has $_ => (
     clearer => 'clear_' . $_,
 ) for qw( local_id owner_trust );
 
+
+sub compare {
+  my ($self, $other, $deep) = @_;
+
+  # not comparing local_id because it is meaningless in modern
+  # versions of GnuPG.
+  my @comparison_fields = qw (
+     owner_trust
+  );
+
+  foreach my $field (@comparison_fields) {
+    return 0 unless $self->$field eq $other->$field;
+  }
+
+  if (defined $deep && $deep) {
+    my @lists = qw(
+      user_ids
+      subkeys
+      user_attributes
+                 );
+
+    foreach my $list (@lists) {
+      return 0 unless @{$self->$list} == @{$other->$list};
+      for ( my $i = 0; $i < scalar(@{$self->$list}); $i++ ) {
+        return 0
+          unless $self->$list->[$i]->compare($other->$list->[$i], 1);
+      }
+    }
+  }
+
+  return $self->SUPER::compare($other, $deep);
+}
+
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -88,7 +122,9 @@ A list of GnuPG::SubKey objects associated with this key.
 
 =item local_id
 
-GnuPG's local id for the key.
+WARNING: DO NOT USE.  This used to mean GnuPG's local id for the key,
+but modern versions of GnuPG do not produce it.  Expect this to be the
+empty string or undef.
 
 =item owner_trust
 

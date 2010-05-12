@@ -10,8 +10,8 @@ use lib './t';
 use MyTest;
 use MyTestSpecific;
 
-use GnuPG::ComparablePrimaryKey;
-use GnuPG::ComparableSubKey;
+use GnuPG::PrimaryKey;
+use GnuPG::SubKey;
 
 my ( $given_key, $handmade_key );
 
@@ -25,14 +25,13 @@ TEST
     
     $given_key = shift @returned_keys;
     
-    $handmade_key = GnuPG::ComparablePrimaryKey->new
+    $handmade_key = GnuPG::PrimaryKey->new
       ( length                 => 1024,
 	algo_num               => 17,
 	hex_id                 => '53AE596EF950DA9C',
         creation_date          => 949813093,
 	creation_date_string   => '2000-02-06',
-	expiration_date_string => '2002-02-05',
-	owner_trust            => 'f',
+	owner_trust            => '-',
         usage_flags            => 'scaESCA',
       );
     
@@ -42,6 +41,73 @@ TEST
 			       )
       );
     
+
+    my $uid0 = GnuPG::UserId->new( as_string =>  'GnuPG test key (for testing purposes only)',
+                                   validity => '-');
+    $uid0->push_signatures(
+      GnuPG::Signature->new(
+                            date => 1177086597,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'GnuPG test key (for testing purposes only)',
+                            date_string => '2007-04-20',
+                            hex_id => '53AE596EF950DA9C',
+                            sig_class => 0x13,
+                            validity => '!'),
+      GnuPG::Signature->new(
+                            date => 953180097,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'Frank J. Tobin <ftobin@neverending.org>',
+                            date_string => '2000-03-16',
+                            hex_id => '56FFD10A260C4FA3',
+                            sig_class => 0x10,
+                            validity => '!'),
+      GnuPG::Signature->new(
+                            date => 949813093,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'GnuPG test key (for testing purposes only)',
+                            date_string => '2000-02-06',
+                            hex_id => '53AE596EF950DA9C',
+                            sig_class => 0x13,
+                            validity => '!'));
+
+    my $uid1 = GnuPG::UserId->new( as_string =>  'Foo Bar (1)',
+                                   validity => '-');
+    $uid1->push_signatures(
+      GnuPG::Signature->new(
+                            date => 1177086330,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'GnuPG test key (for testing purposes only)',
+                            date_string => '2007-04-20',
+                            hex_id => '53AE596EF950DA9C',
+                            sig_class => 0x13,
+                            validity => '!'),
+      GnuPG::Signature->new(
+                            date => 953180103,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'Frank J. Tobin <ftobin@neverending.org>',
+                            date_string => '2000-03-16',
+                            hex_id => '56FFD10A260C4FA3',
+                            sig_class => 0x10,
+                            validity => '!'),
+      GnuPG::Signature->new(
+                            date => 953179891,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'GnuPG test key (for testing purposes only)',
+                            date_string => '2000-03-16',
+                            hex_id => '53AE596EF950DA9C',
+                            sig_class => 0x13,
+                            validity => '!'));
+
+
+
+    $handmade_key->push_user_ids($uid0, $uid1);
+
     my $subkey_signature = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
@@ -94,7 +160,6 @@ TEST
 	hex_id                   => 'ADB99D9C2E854A6B',
         creation_date            => 949813119,
 	creation_date_string     => '2000-02-06',
-	expiration_date_string   => '2002-02-05',
         usage_flags              => 'e',
       );
     
@@ -117,7 +182,7 @@ TEST
     my $subkey1 = $given_key->subkeys()->[0];
     my $subkey2 = $handmade_key->subkeys()->[0];
     
-    bless $subkey1, 'GnuPG::ComparableSubKey';
+    bless $subkey1, 'GnuPG::SubKey';
 
     my $equal = $subkey1->compare( $subkey2 );
     
