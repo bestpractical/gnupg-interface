@@ -57,11 +57,10 @@ sub compare {
 
   return 0 unless $self->fingerprint->compare($other->fingerprint);
 
-  return 0 unless @{$self->signatures} == @{$other->signatures};
-
   # FIXME: is it actually wrong if the associated signatures come out
   # in a different order on the two compared designated revokers?
   if (defined $deep && $deep) {
+    return 0 unless @{$self->signatures} == @{$other->signatures};
     for ( my $i = 0; $i < scalar(@{$self->signatures}); $i++ ) {
       return 0
         unless $self->signatures->[$i]->compare($other->signatures->[$i], 1);
