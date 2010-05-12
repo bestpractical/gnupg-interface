@@ -23,6 +23,7 @@ use Fatal qw( open close pipe fcntl );
 use Class::Struct;
 use IO::Handle;
 
+use Math::BigInt try => 'GMP';
 use GnuPG::Options;
 use GnuPG::Handles;
 
@@ -381,6 +382,7 @@ sub get_keys {
         '--fixed-list-mode',
         '--with-fingerprint',
         '--with-fingerprint',
+        '--with-key-data',
     );
 
     my $stdin  = IO::Handle->new();
@@ -585,6 +587,10 @@ sub get_keys {
           $current_key->push_revokers($rvk);
           # revokers should be bound to the key with signatures:
           $current_signed_item = $rvk;
+        }
+        elsif ($record_type eq 'pkd') {
+          my ($pos, $size, $data) = @fields[ 1,2,3 ];
+          $current_key->pubkey_data->[$pos+0] = Math::BigInt->from_hex('0x'.$data);
         }
         elsif ( $record_type ne 'tru' ) {
             warn "unknown record type $record_type";
