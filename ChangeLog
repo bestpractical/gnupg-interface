@@ -1,3 +1,6 @@
+0.42_02
+   Additional cleanups from dkg
+
 0.42_01 Mon May 10 10:50:49 EDT 2010
     GnuPG::Revoker: improve docs, compare() should fail if the signature counts differ - dkg
     Handle revoker packets (rvk) - dkg
