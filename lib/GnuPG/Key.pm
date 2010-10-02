@@ -186,7 +186,7 @@ Number of bits in the key.
 
 They algorithm number that the Key is used for.
 
-=item usage flags
+=item usage_flags
 
 The Key Usage flags associated with this key, represented as a string
 of lower-case letters.  Possible values include: (a) authenticate, (c)
