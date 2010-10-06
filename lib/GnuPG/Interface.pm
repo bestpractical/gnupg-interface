@@ -1,4 +1,4 @@
-#  Jnterface.pm
+#  Interface.pm
 #    - providing an object-oriented approach to interacting with GnuPG
 #
 #  Copyright (C) 2000 Frank J. Tobin <ftobin@cpan.org>
