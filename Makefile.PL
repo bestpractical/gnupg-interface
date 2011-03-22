@@ -17,6 +17,7 @@ abstract 'supply object methods for interacting with GnuPG';
 name 'GnuPG-Interface';
 version_from 'lib/GnuPG/Interface.pm';
 requires 'Any::Moose' => '0.04';
+requires 'Math::BigInt' => '1.78';
 license 'perl';
 
 
