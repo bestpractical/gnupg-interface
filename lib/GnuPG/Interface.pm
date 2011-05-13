@@ -1097,7 +1097,7 @@ The following setup can be done before any of the following examples:
   $gnupg->options->hash_init( armor    => 1,
                               recipients => [ 'ftobin@uiuc.edu',
                                               '0xABCD1234' ],
-                              meta_interactive( 0 ),
+                              meta_interactive => 0 ,
                             );
 
 =head2 Encrypting
