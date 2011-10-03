@@ -415,7 +415,7 @@ sub get_keys {
     while (<$stdout>) {
         my $line = $_;
         chomp $line;
-        my @fields = split ':', $line;
+        my @fields = split ':', $line, -1;
         next unless @fields > 3;
 
         my $record_type = $fields[0];
