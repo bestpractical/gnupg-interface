@@ -1,5 +1,9 @@
+0.45 Wed Oct 26 00:11:17 EDT 2011
+
+	Include trailing columns when parsing --fixed-list-mode output
+
 0.44 Mon May  2 21:36:13 EDT 2011
-	
+
 	Bump Math::BigInt dependency to get the new 'try GMP' syntax.
 
 0.43 Tue Mar  8 09:13:31 EST 2011
