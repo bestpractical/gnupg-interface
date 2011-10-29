@@ -1202,9 +1202,9 @@ The following setup can be done before any of the following examples:
   close $input;
   close $cipher_file;
 
-  my @plaintext    = <$output>;   # reading the output
-  my @error_output = <$error>;    # reading the error
-  my @status_info  = <$status_fh> # read the status info
+  my @plaintext    = <$output>;    # reading the output
+  my @error_output = <$error>;     # reading the error
+  my @status_info  = <$status_fh>; # read the status info
 
   # clean up...
   close $output;
