@@ -745,6 +745,14 @@ sub send_keys( $% ) {
     );
 }
 
+sub search_keys( $% ) {
+    my ( $self, %args ) = @_;
+    return $self->wrap_call(
+        %args,
+        commands => ['--search-keys']
+    );
+}
+
 sub test_default_key_passphrase() {
     my ($self) = @_;
 
@@ -927,6 +935,8 @@ initialization of data members.
 =item recv_keys( % )
 
 =item send_keys( % )
+
+=item search_keys( % )
 
 These methods each correspond directly to or are very similar
 to a GnuPG command described in L<gpg>.  Each of these methods
