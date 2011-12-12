@@ -753,6 +753,17 @@ sub search_keys( $% ) {
     );
 }
 
+sub version {
+    my ( $self ) = @_;
+
+    my $out = IO::Handle->new;
+    my $handles = GnuPG::Handles->new( stdout => $out );
+    $self->wrap_call( commands => [ '--version' ], handles => $handles );
+    my $line = $out->getline;
+    $line =~ /(\d+\.\d+\.\d+)/;
+    return $1;
+}
+
 sub test_default_key_passphrase() {
     my ($self) = @_;
 
@@ -1018,6 +1029,10 @@ on whether GnuPG reports a good passphrase was entered
 while signing a short message using the values of
 the B<passphrase> data member, and the default
 key specified in the B<options> data member.
+
+=item version()
+
+Returns the version of GnuPG that GnuPG::Interface is running.
 
 =back
 
