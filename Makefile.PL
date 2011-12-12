@@ -2,14 +2,14 @@ use strict;
 use warnings;
 use inc::Module::Install;
 
-for my $gpg qw(gpg gpg2) {
-    my $gpg_find = "which $gpg";
-    print "$gpg_find ... ";
-    system($gpg_find);
-    if ( $? != 0 ) {
-        die "gpg (GnuPG) not found";
-    } else { last }
-}
+print "which gpg ... ";
+system("which", "gpg");
+die "gpg (GnuPG) not found" if ( $? != 0 );
+
+my $output = `gpg --version`;
+die "Can't determine gpg version"
+    unless $output =~ /^gpg \(GnuPG\) (\d+\.\d+)/;
+die "gpg (GnuPG) 1.4 or later is required" unless $1 >= 1.4;
 
 
 author 'Frank J. Tobin';
