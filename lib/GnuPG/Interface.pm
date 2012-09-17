@@ -120,6 +120,8 @@ sub fork_attach_exec( $% ) {
         = ref $args{command_args}
         ? @{ $args{command_args} }
         : ( $args{command_args} || () );
+    unshift @command_args, "--"
+        if @command_args and $command_args[0] ne "--";
 
     my %fhs;
     foreach my $fh_name (
