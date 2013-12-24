@@ -14,22 +14,21 @@
 #
 
 package GnuPG::PrimaryKey;
-use Any::Moose;
+use Moo;
+use MooX::late;
+use MooX::HandlesVia;
 
 BEGIN { extends qw( GnuPG::Key ) }
 
 for my $list (qw(user_ids subkeys user_attributes)) {
     has $list => (
-        isa        => 'ArrayRef',
-        is         => 'rw',
-        default    => sub { [] },
-        auto_deref => 1,
+        handles_via => 'Array',
+        is          => 'rw',
+        default     => sub { [] },
+        handles     => {
+            "push_$list" => 'push',
+        },
     );
-
-    __PACKAGE__->meta->add_method("push_$list" => sub {
-        my $self = shift;
-        push @{ $self->$list }, @_;
-    });
 }
 
 has $_ => (
@@ -70,9 +69,6 @@ sub compare {
 
   return $self->SUPER::compare($other, $deep);
 }
-
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

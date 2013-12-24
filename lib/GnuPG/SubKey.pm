@@ -14,8 +14,9 @@
 #
 
 package GnuPG::SubKey;
-use Any::Moose;
 use Carp;
+use Moo;
+use MooX::late;
 BEGIN { extends qw( GnuPG::Key ) }
 
 has [qw( validity   owner_trust  local_id  )] => (
@@ -42,8 +43,6 @@ sub signature {
     }
   }
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

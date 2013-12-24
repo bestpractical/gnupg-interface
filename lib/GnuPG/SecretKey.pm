@@ -14,11 +14,9 @@
 #
 
 package GnuPG::SecretKey;
-use Any::Moose;
+use Moo;
 
 BEGIN { extends qw( GnuPG::PrimaryKey ) }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

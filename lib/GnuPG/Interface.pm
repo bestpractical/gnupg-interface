@@ -12,7 +12,8 @@
 #
 
 package GnuPG::Interface;
-use Any::Moose;
+use Moo;
+use MooX::late;
 with qw(GnuPG::HashInit);
 
 use English qw( -no_match_vars );
@@ -867,7 +868,7 @@ decryption, verification, and key-listing parsing.
 =head2 How Data Member Accessor Methods are Created
 
 Each module in the GnuPG::Interface bundle relies
-on Any::Moose to generate the get/set methods
+on Moo to generate the get/set methods
 used to set the object's data members.
 I<This is very important to realize.>  This means that
 any data member which is a list has special
@@ -1350,9 +1351,6 @@ GnuPg::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.
 Frank J. Tobin, ftobin@cpan.org was the original author of the package.
 
 =cut
-
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

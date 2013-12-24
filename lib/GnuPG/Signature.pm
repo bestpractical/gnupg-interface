@@ -14,7 +14,8 @@
 #
 
 package GnuPG::Signature;
-use Any::Moose;
+use Moo;
+use MooX::late;
 
 has [qw(
          validity
@@ -61,8 +62,6 @@ sub compare {
   }
   return 1;
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

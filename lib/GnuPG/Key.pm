@@ -14,7 +14,8 @@
 #
 
 package GnuPG::Key;
-use Any::Moose;
+use Moo;
+use MooX::late;
 with qw(GnuPG::HashInit);
 
 has [
@@ -123,8 +124,6 @@ sub compare {
   }
   return 1;
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

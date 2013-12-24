@@ -15,7 +15,8 @@
 #
 
 package GnuPG::Revoker;
-use Any::Moose;
+use Moo;
+use MooX::late;
 
 has [qw(
          algo_num
@@ -69,8 +70,6 @@ sub compare {
 
   return 1;
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

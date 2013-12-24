@@ -1,5 +1,5 @@
 package GnuPG::HashInit;
-use Any::Moose 'Role';
+use Moo::Role;
 
 sub hash_init {
     my ($self, %args) = @_;

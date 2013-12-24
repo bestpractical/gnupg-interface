@@ -14,7 +14,8 @@
 #
 
 package GnuPG::Fingerprint;
-use Any::Moose;
+use Moo;
+use MooX::late;
 with qw(GnuPG::HashInit);
 
 has as_hex_string => (
@@ -35,8 +36,6 @@ sub hex_data
     $self->as_hex_string( $v ) if defined $v;
     return $self->as_hex_string();
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

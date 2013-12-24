@@ -14,7 +14,9 @@
 #
 
 package GnuPG::Options;
-use Any::Moose;
+use Moo;
+use MooX::late;
+use MooX::HandlesVia;
 with qw(GnuPG::HashInit);
 
 use constant BOOLEANS => qw(
@@ -71,17 +73,15 @@ has $_ => (
 
 for my $list (LISTS) {
     has $list => (
-        isa        => 'ArrayRef',
-        is         => 'rw',
-        lazy       => 1,
-        clearer    => "clear_$list",
-        default    => sub { [] },
-        auto_deref => 1,
+        handles_via => 'Array',
+        is          => 'rw',
+        lazy        => 1,
+        clearer     => "clear_$list",
+        default     => sub { [] },
+        handles     => {
+            "push_$list" => 'push',
+        },
     );
-    __PACKAGE__->meta->add_method("push_$list" => sub {
-        my $self = shift;
-        push @{ $self->$list }, @_;
-    });
 }
 
 sub BUILD {
@@ -110,7 +110,7 @@ sub get_args {
     return (
         $self->get_meta_args(),
         $self->get_option_args(),
-        $self->extra_args(),
+        @{$self->extra_args()},
     );
 }
 
@@ -147,8 +147,8 @@ sub get_option_args {
     push @args, '--command-fd', $self->command_fd()
         if defined $self->command_fd();
 
-    push @args, map { ( '--recipient',  $_ ) } $self->recipients();
-    push @args, map { ( '--encrypt-to', $_ ) } $self->encrypt_to();
+    push @args, map { ( '--recipient',  $_ ) } @{$self->recipients};
+    push @args, map { ( '--encrypt-to', $_ ) } @{$self->encrypt_to};
 
     return @args;
 }
@@ -172,14 +172,13 @@ sub get_meta_args {
         if $self->meta_signing_key();
 
     push @args,
-        map { ( '--recipient', $_ ) } $self->meta_recipients_key_ids();
+        map { ( '--recipient', $_ ) } @{$self->meta_recipients_key_ids};
+    use Data::Dumper::Concise;
     push @args,
-        map { ( '--recipient', $_->hex_id() ) } $self->meta_recipients_keys();
+        map { ( '--recipient', $_->hex_id() ) } @{$self->meta_recipients_keys};
 
     return @args;
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

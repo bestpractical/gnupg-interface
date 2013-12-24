@@ -15,7 +15,8 @@
 #
 
 package GnuPG::UserAttribute;
-use Any::Moose;
+use Moo;
+use MooX::late;
 
 has [qw( validity subpacket_count subpacket_total_size )] => (
     isa => 'Any',
@@ -41,8 +42,6 @@ sub push_revocations {
     my $self = shift;
     push @{ $self->revocations }, @_;
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

@@ -14,7 +14,8 @@
 #
 
 package GnuPG::Handles;
-use Any::Moose;
+use Moo;
+use MooX::late;
 with qw(GnuPG::HashInit);
 
 use constant HANDLES => qw(
@@ -56,8 +57,6 @@ sub BUILD {
     $self->_options->{$_} = {} for HANDLES;
     $self->hash_init(%$args);
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

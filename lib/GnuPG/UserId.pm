@@ -14,7 +14,8 @@
 #
 
 package GnuPG::UserId;
-use Any::Moose;
+use Moo;
+use MooX::late;
 
 has [qw( validity as_string )] => (
     isa => 'Any',
@@ -76,8 +77,6 @@ sub user_id_string {
     $self->as_string($v) if defined $v;
     return $self->as_string();
 }
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 
