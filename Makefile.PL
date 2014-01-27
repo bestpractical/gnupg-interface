@@ -8,7 +8,7 @@ die "gpg (GnuPG) not found" if ( $? != 0 );
 
 my $output = `gpg --version`;
 die "Can't determine gpg version"
-    unless $output =~ /^gpg \(GnuPG\) (\d+\.\d+)/;
+    unless $output =~ /^gpg \(GnuPG.*?\) (\d+\.\d+)/;
 die "gpg (GnuPG) 1.4 or later is required" unless $1 >= 1.4;
 
 
