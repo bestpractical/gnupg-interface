@@ -1,3 +1,6 @@
+0.47_02 Fri Feb 14 11:16:17 EST 2014
+	Remove a stray 'use Data::Dumper::Concise' added in 0.47_01
+
 0.47_01 Mon Jan 27 17:03:17 EST 2014
 	Switch from Any::Moose to Moo
 	Accept "gpg (GnuPG/MacGPG2)" as a valid gpg version
