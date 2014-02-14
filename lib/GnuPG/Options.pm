@@ -173,7 +173,6 @@ sub get_meta_args {
 
     push @args,
         map { ( '--recipient', $_ ) } @{$self->meta_recipients_key_ids};
-    use Data::Dumper::Concise;
     push @args,
         map { ( '--recipient', $_->hex_id() ) } @{$self->meta_recipients_keys};
 
