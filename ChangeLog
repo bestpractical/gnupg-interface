@@ -1,3 +1,9 @@
+0.48    Mon Mar 10 11:26:17 EDT 2014
+	Switch from --always-trust to --trust-model=always
+
+0.47    Mon Mar 10 11:06:17 EDT 2014
+	No changes from 0.47_02
+
 0.47_02 Fri Feb 14 11:16:17 EST 2014
 	Remove a stray 'use Data::Dumper::Concise' added in 0.47_01
 
