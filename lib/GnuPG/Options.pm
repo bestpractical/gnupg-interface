@@ -130,7 +130,7 @@ sub get_option_args {
     push @args, '--no-verbose'   if $self->no_verbose();
     push @args, '--quiet'        if $self->quiet();
     push @args, '--batch'        if $self->batch();
-    push @args, '--trust_model=always' if $self->always_trust();
+    push @args, '--trust-model=always' if $self->always_trust();
     push @args, '--comment', $self->comment() if defined $self->comment();
     push @args, '--force-v3-sigs' if $self->force_v3_sigs();
     push @args, '--rfc1991'       if $self->rfc1991;
