@@ -72,7 +72,8 @@ has $_ => (
 ) for SCALARS;
 
 for my $list (LISTS) {
-    has $list => (
+    my $ref = $list . "_ref";
+    has $ref => (
         handles_via => 'Array',
         is          => 'rw',
         lazy        => 1,
@@ -82,6 +83,11 @@ for my $list (LISTS) {
             "push_$list" => 'push',
         },
     );
+
+    __PACKAGE__->meta->add_method($list => sub {
+        my $self = shift;
+        return wantarray ? @{$self->$ref(@_)} : $self->$ref(@_);
+    });
 }
 
 sub BUILD {
@@ -110,7 +116,7 @@ sub get_args {
     return (
         $self->get_meta_args(),
         $self->get_option_args(),
-        @{$self->extra_args()},
+        $self->extra_args(),
     );
 }
 
@@ -147,8 +153,8 @@ sub get_option_args {
     push @args, '--command-fd', $self->command_fd()
         if defined $self->command_fd();
 
-    push @args, map { ( '--recipient',  $_ ) } @{$self->recipients};
-    push @args, map { ( '--encrypt-to', $_ ) } @{$self->encrypt_to};
+    push @args, map { ( '--recipient',  $_ ) } $self->recipients();
+    push @args, map { ( '--encrypt-to', $_ ) } $self->encrypt_to();
 
     return @args;
 }
@@ -172,9 +178,9 @@ sub get_meta_args {
         if $self->meta_signing_key();
 
     push @args,
-        map { ( '--recipient', $_ ) } @{$self->meta_recipients_key_ids};
+        map { ( '--recipient', $_ ) } $self->meta_recipients_key_ids();
     push @args,
-        map { ( '--recipient', $_->hex_id() ) } @{$self->meta_recipients_keys};
+        map { ( '--recipient', $_->hex_id() ) } $self->meta_recipients_keys();
 
     return @args;
 }

@@ -21,7 +21,8 @@ use MooX::HandlesVia;
 BEGIN { extends qw( GnuPG::Key ) }
 
 for my $list (qw(user_ids subkeys user_attributes)) {
-    has $list => (
+    my $ref = $list . "_ref";
+    has $ref => (
         handles_via => 'Array',
         is          => 'rw',
         default     => sub { [] },
@@ -29,6 +30,11 @@ for my $list (qw(user_ids subkeys user_attributes)) {
             "push_$list" => 'push',
         },
     );
+
+    __PACKAGE__->meta->add_method($list => sub {
+        my $self = shift;
+        return wantarray ? @{$self->$ref(@_)} : $self->$ref(@_);
+    });
 }
 
 has $_ => (
