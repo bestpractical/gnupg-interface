@@ -28,7 +28,7 @@ use Math::BigInt try => 'GMP';
 use GnuPG::Options;
 use GnuPG::Handles;
 
-$VERSION = '0.48';
+$VERSION = '0.49';
 
 has $_ => (
     isa     => 'Any',
