@@ -1,5 +1,4 @@
 Changes
-COPYING
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
@@ -68,4 +67,3 @@ test/secret-keys/1.0.test
 test/secret-keys/2.0.test
 test/secring.gpg
 test/signed.1.asc
-THANKS

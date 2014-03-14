@@ -1344,6 +1344,11 @@ L<GnuPG::SecretKey>,
 L<gpg>,
 L<perlipc/"Bidirectional Communication with Another Process">
 
+=head1 LICENSE
+
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
 =head1 AUTHOR
 
 GnuPg::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.  
