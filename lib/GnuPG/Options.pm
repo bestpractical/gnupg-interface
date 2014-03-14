@@ -84,10 +84,11 @@ for my $list (LISTS) {
         },
     );
 
-    __PACKAGE__->meta->add_method($list => sub {
+    no strict 'refs';
+    *{$list} = sub {
         my $self = shift;
         return wantarray ? @{$self->$ref(@_)} : $self->$ref(@_);
-    });
+    };
 }
 
 sub BUILD {
