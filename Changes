@@ -1,5 +1,10 @@
 Revision history for GnuPG-Interface
 
+0.50 - 2014-03-14
+ - Version 0.49 implicitly required Moose; switch to a technique that
+   does not
+ - Modernize CHANGES
+
 0.49 - 2014-03-13
  - Restore context-sensitive (array/arrayref) behavior of multiple array
    methods from 0.46.
