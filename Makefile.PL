@@ -16,6 +16,7 @@ author 'Frank J. Tobin';
 abstract 'supply object methods for interacting with GnuPG';
 name 'GnuPG-Interface';
 version_from 'lib/GnuPG/Interface.pm';
+readme_from 'lib/GnuPG/Interface.pm';
 requires 'Moo' => '0.091011';
 requires 'MooX::HandlesVia' => '0.001004';
 requires 'MooX::late' => '0.014';
