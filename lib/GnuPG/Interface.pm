@@ -659,10 +659,16 @@ sub encrypt( $% ) {
 
 sub encrypt_symmetrically( $% ) {
     my ( $self, %args ) = @_;
-    return $self->wrap_call(
+    # Strip the homedir and put it back after encrpyting; gpg 2.0.x
+    # fails symmetric encryption when one is passed.
+    my $homedir = $self->options->homedir;
+    $self->options->clear_homedir;
+    my $pid = $self->wrap_call(
         %args,
         commands => ['--symmetric']
     );
+    $self->options->homedir($homedir);
+    return $pid;
 }
 
 sub sign( $% ) {
