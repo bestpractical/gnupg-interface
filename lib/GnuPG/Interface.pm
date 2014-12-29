@@ -595,7 +595,7 @@ sub get_keys {
           my ($pos, $size, $data) = @fields[ 1,2,3 ];
           $current_key->pubkey_data->[$pos+0] = Math::BigInt->from_hex('0x'.$data);
         }
-        elsif ( $record_type ne 'tru' ) {
+        elsif ( $record_type ne 'tru' and $record_type ne 'grp' ) {
             warn "unknown record type $record_type";
         }
     }
