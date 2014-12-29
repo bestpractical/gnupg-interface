@@ -659,7 +659,7 @@ sub encrypt( $% ) {
 
 sub encrypt_symmetrically( $% ) {
     my ( $self, %args ) = @_;
-    # Strip the homedir and put it back after encrpyting; gpg 2.0.x
+    # Strip the homedir and put it back after encrypting; gpg 2.0.x
     # fails symmetric encryption when one is passed.
     my $homedir = $self->options->homedir;
     $self->options->clear_homedir;
