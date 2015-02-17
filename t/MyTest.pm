@@ -33,9 +33,9 @@ my $counter = 0;
 sub TEST ( & )
 {
     my ( $code ) = @_;
-    
+
     $counter++;
-    
+
     &$code or print "not ";
     print "ok $counter\n";
 }
@@ -45,17 +45,17 @@ sub COUNT_TESTS
 {
     my ( $file ) = @_;
     $file ||= $PROGRAM_NAME;
-    
+
     my $tests = 0;
-    
+
     my $in = IO::File->new( $file );
-    
+
     while ( $_ = $in->getline() )
     {
-	$tests++
-	  if /^\s*TEST\s*/;
+        $tests++
+          if /^\s*TEST\s*/;
     }
-    
+
     return $tests;
 }
 

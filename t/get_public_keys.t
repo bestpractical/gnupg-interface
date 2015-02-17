@@ -18,11 +18,11 @@ my ( $given_key, $handmade_key );
 TEST
 {
     reset_handles();
-    
+
     my @returned_keys = $gnupg->get_public_keys_with_sigs( '0xF950DA9C' );
-    
+
     return 0 unless @returned_keys == 1;
-    
+
     $given_key = shift @returned_keys;
 
     my $pubkey_data = [
@@ -35,24 +35,24 @@ TEST
      Math::BigInt->from_hex('0x'.
       '80DE04C85E30C9D62C13F90CFF927A84A5A59D0900B3533D4D6193FEF8C5DAEF9FF8A7D5F76B244FBC17644F50D524E0B19CD3A4B5FC2D78DAECA3FE58FA1C1A64E6C7B96C4EE618173543163A72EF954DFD593E84342699096E9CA76578AC1DE3D893BCCD0BF470CEF625FAF816A0F503EF75C18C6173E35C8675AF919E5704')
     ];
-    
+
     $handmade_key = GnuPG::PrimaryKey->new
       ( length                 => 1024,
-	algo_num               => 17,
-	hex_id                 => '53AE596EF950DA9C',
+        algo_num               => 17,
+        hex_id                 => '53AE596EF950DA9C',
         creation_date          => 949813093,
-	creation_date_string   => '2000-02-06',
-	owner_trust            => '-',
+        creation_date_string   => '2000-02-06',
+        owner_trust            => '-',
         usage_flags            => 'scaESCA',
         pubkey_data            => $pubkey_data,
       );
-    
+
     $handmade_key->fingerprint
       ( GnuPG::Fingerprint->new( as_hex_string =>
-				 '93AFC4B1B0288A104996B44253AE596EF950DA9C',
-			       )
+                                 '93AFC4B1B0288A104996B44253AE596EF950DA9C',
+                               )
       );
-    
+
 
     my $uid0 = GnuPG::UserId->new( as_string =>  'GnuPG test key (for testing purposes only)',
                                    validity => '-');
@@ -123,14 +123,14 @@ TEST
     my $subkey_signature = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
-	hex_id         => '53AE596EF950DA9C',
+        hex_id         => '53AE596EF950DA9C',
         date           => 1177086380,
-	date_string    => '2007-04-20',
+        date_string    => '2007-04-20',
         user_id_string => 'GnuPG test key (for testing purposes only)',
         sig_class      => 0x18,
         is_exportable  => 1,
       );
-    
+
     my $uid2_signature = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
@@ -138,33 +138,33 @@ TEST
         date           => 953179891,
         date_string    => '2000-03-16',
       );
-    
+
     my $ftobin_signature = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
-	hex_id         => '56FFD10A260C4FA3',
+        hex_id         => '56FFD10A260C4FA3',
         date           => 953180097,
-	date_string    => '2000-03-16',
-	);
-    
+        date_string    => '2000-03-16',
+        );
+
     my $designated_revoker_sig = GnuPG::Signature->new
       ( validity       => '!',
         algo_num       => 17,
-	hex_id         => '53AE596EF950DA9C',
+        hex_id         => '53AE596EF950DA9C',
         date           => 978325209,
-	date_string    => '2001-01-01',
+        date_string    => '2001-01-01',
         sig_class      => 0x1f,
         is_exportable  => 1
-	);
+        );
 
     my $revoker = GnuPG::Revoker->new
       ( algo_num       => 17,
         class          => 0x80,
-	fingerprint    => GnuPG::Fingerprint->new( as_hex_string =>
+        fingerprint    => GnuPG::Fingerprint->new( as_hex_string =>
                                                    '4F863BBBA8166F0A340F600356FFD10A260C4FA3'),
-	);
+        );
     $revoker->push_signatures($designated_revoker_sig);
-    
+
     my $subkey_pub_data = [
      Math::BigInt->from_hex('0x'.
       '8831982DADC4C5D05CBB01D9EAF612131DDC9C24CEA7246557679423FB0BA42F74D10D8E7F5564F6A4FB8837F8DC4A46571C19B122E6DF4B443D15197A6A22688863D0685FADB6E402316DAA9B560D1F915475364580A67E6DF0A727778A5CF3'),
@@ -176,27 +176,27 @@ TEST
 
     my $subkey = GnuPG::SubKey->new
       ( validity                 => 'u',
-	length                   => 768,
-	algo_num                 => 16,
-	hex_id                   => 'ADB99D9C2E854A6B',
+        length                   => 768,
+        algo_num                 => 16,
+        hex_id                   => 'ADB99D9C2E854A6B',
         creation_date            => 949813119,
-	creation_date_string     => '2000-02-06',
+        creation_date_string     => '2000-02-06',
         usage_flags              => 'e',
         pubkey_data              => $subkey_pub_data,
       );
-    
+
 
     $subkey->fingerprint
       ( GnuPG::Fingerprint->new( as_hex_string =>
-				 '7466B7E98C4CCB64C2CE738BADB99D9C2E854A6B'
-			       )
+                                 '7466B7E98C4CCB64C2CE738BADB99D9C2E854A6B'
+                               )
       );
-    
+
     $subkey->push_signatures( $subkey_signature );
-    
+
     $handmade_key->push_subkeys( $subkey );
     $handmade_key->push_revokers( $revoker );
-    
+
     $handmade_key->compare( $given_key );
 };
 
@@ -204,19 +204,19 @@ TEST
 {
     my $subkey1 = $given_key->subkeys()->[0];
     my $subkey2 = $handmade_key->subkeys()->[0];
-    
+
     bless $subkey1, 'GnuPG::SubKey';
 
     my $equal = $subkey1->compare( $subkey2 );
-    
+
     warn 'subkeys fail comparison; this is a known issue with GnuPG 1.0.1'
       if not $equal;
-    
+
     return $equal;
 };
 
 
 TEST
-{  
+{
     $handmade_key->compare( $given_key, 1 );
 };

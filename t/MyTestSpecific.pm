@@ -27,25 +27,25 @@ use GnuPG::Interface;
 use GnuPG::Handles;
 
 use vars qw( @ISA           @EXPORT
-	     $stdin         $stdout           $stderr
-	     $gpg_program   $handles          $gnupg
-	     %texts
-	   );
+             $stdin         $stdout           $stderr
+             $gpg_program   $handles          $gnupg
+             %texts
+           );
 
 @ISA    = qw( Exporter );
 @EXPORT = qw( stdin                  stdout          stderr
-	      gnupg_program handles  reset_handles
-	      texts                  file_match
-	    );
+              gnupg_program handles  reset_handles
+              texts                  file_match
+            );
 
 $gnupg = GnuPG::Interface->new( passphrase => 'test' );
 
 $gnupg->options->hash_init( homedir              => 'test',
-			    armor                => 1,
-			    meta_interactive     => 0,
-			    meta_signing_key_id  => '0xF950DA9C',
-			    always_trust         => 1,
-			  );
+                            armor                => 1,
+                            meta_interactive     => 0,
+                            meta_signing_key_id  => '0xF950DA9C',
+                            always_trust         => 1,
+                          );
 
 struct( Text => { fn => "\$", fh => "\$", data => "\$" } );
 
@@ -78,30 +78,30 @@ sub reset_handles
 {
     foreach ( $stdin, $stdout, $stderr )
     {
-	$_ = IO::Handle->new();
+        $_ = IO::Handle->new();
     }
-    
+
     $handles = GnuPG::Handles->new
       ( stdin   => $stdin,
-	stdout  => $stdout,
-	stderr  => $stderr
+        stdout  => $stdout,
+        stderr  => $stderr
       );
-    
+
     foreach my $name ( qw( plain encrypted signed key ) )
     {
-	my $entry = $texts{$name};
-	my $filename = $entry->fn();
-	my $fh = IO::File->new( $filename )
-	  or die "cannot open $filename: $ERRNO";
-	$entry->fh( $fh );
+        my $entry = $texts{$name};
+        my $filename = $entry->fn();
+        my $fh = IO::File->new( $filename )
+          or die "cannot open $filename: $ERRNO";
+        $entry->fh( $fh );
     }
-    
+
     {
-	my $entry = $texts{temp};
-	my $filename = $entry->fn();
-	my $fh = IO::File->new( $filename, 'w' )
-	  or die "cannot open $filename: $ERRNO";
-	$entry->fh( $fh );
+        my $entry = $texts{temp};
+        my $filename = $entry->fn();
+        my $fh = IO::File->new( $filename, 'w' )
+          or die "cannot open $filename: $ERRNO";
+        $entry->fh( $fh );
     }
 }
 
@@ -110,15 +110,15 @@ sub reset_handles
 sub file_match
 {
     my ( $orig, @compares ) = @_;
-    
+
     my $found_match = 0;
-    
+
     foreach my $file ( @compares )
     {
-	return 1
-	  if compare( $file, $orig ) == 0;
+        return 1
+          if compare( $file, $orig ) == 0;
     }
-    
+
     return 0;
 }
 

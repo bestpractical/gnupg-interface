@@ -13,13 +13,13 @@ use MyTestSpecific;
 TEST
 {
     reset_handles();
-    
+
     my $pid = $gnupg->verify( handles => $handles );
-    
+
     print $stdin @{ $texts{signed}->data() };
     close $stdin;
     waitpid $pid, 0;
-    
+
     return $CHILD_ERROR == 0;
 };
 
@@ -27,13 +27,13 @@ TEST
 TEST
 {
     reset_handles();
-    
+
     $handles->stdin( $texts{signed}->fh() );
     $handles->options( 'stdin' )->{direct} = 1;
-    
+
     my $pid = $gnupg->verify( handles => $handles );
-    
+
     waitpid $pid, 0;
-    
+
     return $CHILD_ERROR == 0;
 };

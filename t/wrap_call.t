@@ -12,21 +12,21 @@ use MyTestSpecific;
 TEST
 {
     reset_handles();
-    
+
     my $pid = $gnupg->wrap_call
       ( commands     => [ qw( --list-packets ) ],
-	command_args => [ qw( test/key.1.asc ) ],
-	handles      => $handles,
+        command_args => [ qw( test/key.1.asc ) ],
+        handles      => $handles,
       );
-    
+
     close $stdin;
-    
+
     my @out = <$stdout>;
     waitpid $pid, 0;
-    
+
     return @out > 0;  #just check if we have output.
 };
-  
+
 TEST
 {
     return $CHILD_ERROR == 0;
@@ -37,20 +37,20 @@ TEST
 TEST
 {
     reset_handles();
-    
+
     my $pid = $gnupg->wrap_call
       ( gnupg_commands     => [ qw( --list-packets ) ],
-	gnupg_command_args => [ qw( test/key.1.asc ) ],
-	handles      => $handles,
+        gnupg_command_args => [ qw( test/key.1.asc ) ],
+        handles      => $handles,
       );
-    
+
     close $stdin;
-    
+
     my @out = <$stdout>;
     waitpid $pid, 0;
-    
+
     return @out > 0;  #just check if we have output.
-};   
+};
 
 
 TEST
