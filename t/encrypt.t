@@ -13,6 +13,17 @@ use MyTestSpecific;
 TEST
 {
     reset_handles();
+    my $pid = $gnupg->wrap_call(
+        handles => $handles,
+        commands => ['--update-trustdb'],
+    );
+    waitpid $pid, 0;
+    return $CHILD_ERROR == 0;
+};
+
+TEST
+{
+    reset_handles();
 
     $gnupg->options->clear_recipients();
     $gnupg->options->clear_meta_recipients_keys();
