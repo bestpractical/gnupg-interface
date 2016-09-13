@@ -808,7 +808,7 @@ sub test_default_key_passphrase() {
 
     # all we realy want to check is the status fh
     while (<$status>) {
-        if (/^\[GNUPG:\]\s*GOOD_PASSPHRASE/) {
+        if (/^\[GNUPG:\]\s*(GOOD_PASSPHRASE|SIG_CREATED)/) {
             waitpid $pid, 0;
             return 1;
         }
