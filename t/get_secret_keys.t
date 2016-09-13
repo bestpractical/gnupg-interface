@@ -48,7 +48,7 @@ TEST
 
 
     my $subkey = GnuPG::SubKey->new
-      ( validity                 => 'u',
+      ( validity                 => '-',
         length                   => 768,
         algo_num                 => 16,
         hex_id                   => 'ADB99D9C2E854A6B',
