@@ -40,7 +40,7 @@ use vars qw( @ISA           @EXPORT
 
 $gnupg = GnuPG::Interface->new( passphrase => 'test' );
 
-$gnupg->options->hash_init( homedir              => 'test',
+$gnupg->options->hash_init( homedir              => 'test/gnupghome',
                             armor                => 1,
                             meta_interactive     => 0,
                             meta_signing_key_id  => '0xF950DA9C',
