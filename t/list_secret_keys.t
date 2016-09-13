@@ -16,13 +16,22 @@ TEST
 {
     reset_handles();
 
+    $ENV{LC_MESSAGES} = 'C';
     my $pid = $gnupg->list_secret_keys( handles => $handles );
     close $stdin;
 
     $outfile = 'test/secret-keys/1.out';
     my $out = IO::File->new( "> $outfile" )
       or die "cannot open $outfile for writing: $ERRNO";
-    $out->print( <$stdout> );
+    while (<$stdout>) {
+      if ($gpg_is_modern && /^\/.*\/test\/gnupghome\/pubring.kbx$/) {
+        $out->print("test/gnupghome/pubring.kbx\n");
+      } elsif ($gpg_is_modern && /^--*$/) {
+        $out->print("--------------------------\n");
+      } else {
+        $out->print( $_ );
+      }
+    }
     close $stdout;
     $out->close();
     waitpid $pid, 0;
@@ -33,7 +42,9 @@ TEST
 
 TEST
 {
-    my @files_to_test = ( 'test/secret-keys/1.0.test' );
+    my $suffix = '0';
+    $suffix = 'modern' if ($gpg_is_modern);
+    my @files_to_test = ( 'test/secret-keys/1.'.$suffix.'.test' );
 
     return file_match( $outfile, @files_to_test );
 };
