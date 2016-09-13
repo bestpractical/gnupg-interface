@@ -834,7 +834,7 @@ GnuPG::Interface - Perl interface to GnuPG
   use IO::Handle;
   use GnuPG::Interface;
   
-  # settting up the situation
+  # setting up the situation
   my $gnupg = GnuPG::Interface->new();
   $gnupg->options->hash_init( armor   => 1,
 			      homedir => '/home/foobar' );
