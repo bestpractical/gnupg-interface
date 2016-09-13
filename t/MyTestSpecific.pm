@@ -29,16 +29,19 @@ use GnuPG::Handles;
 use vars qw( @ISA           @EXPORT
              $stdin         $stdout           $stderr
              $gpg_program   $handles          $gnupg
-             %texts
+             %texts         $gpg_is_modern
            );
 
 @ISA    = qw( Exporter );
 @EXPORT = qw( stdin                  stdout          stderr
               gnupg_program handles  reset_handles
-              texts                  file_match
+              texts                  file_match      gpg_is_modern
             );
 
 $gnupg = GnuPG::Interface->new( passphrase => 'test' );
+
+my @version = split('\.', $gnupg->version());
+$gpg_is_modern = ($version[0] > 2 || ($version[0] == 2 && $version[1] >= 1));
 
 $gnupg->options->hash_init( homedir              => 'test/gnupghome',
                             armor                => 1,
