@@ -83,7 +83,17 @@ TEST
                             date_string => '2000-02-06',
                             hex_id => '53AE596EF950DA9C',
                             sig_class => 0x13,
-                            validity => '!'));
+                            validity => '!'),
+      GnuPG::Signature->new(
+                            date => 1177086329,
+                            algo_num => 17,
+                            is_exportable => 1,
+                            user_id_string => 'GnuPG test key (for testing purposes only)',
+                            date_string => '2007-04-20',
+                            hex_id => '53AE596EF950DA9C',
+                            sig_class => 0x13,
+                            validity => '!'),
+                          );
 
     my $uid1 = GnuPG::UserId->new( as_string =>  'Foo Bar (1)',
                                    validity => '-');
