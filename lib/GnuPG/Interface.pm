@@ -1357,7 +1357,7 @@ under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-GnuPg::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.
+GnuPG::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.
 
 Frank J. Tobin, ftobin@cpan.org was the original author of the package.
 
