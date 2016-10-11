@@ -38,7 +38,7 @@ TEST
     reset_handles();
 
     my $pid = $gnupg->list_public_keys( handles     => $handles,
-                                        ommand_args => '0xF950DA9C'
+                                        command_args => '0xF950DA9C'
                                       );
     close $stdin;
 
