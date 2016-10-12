@@ -1008,7 +1008,7 @@ and so this information is not generated and does not come into play.
 If the B<passphrase> data member handle of the B<handles> object
 is not defined, but the the B<passphrase> data member handle of GnuPG::Interface
 object is, GnuPG::Interface will handle passing this information into GnuPG
-for the user as a convience.  Note that this will result in
+for the user as a convenience.  Note that this will result in
 GnuPG::Interface storing the passphrase in memory, instead of having
 it simply 'pass-through' to GnuPG via a handle.
 
@@ -1175,7 +1175,7 @@ The following setup can be done before any of the following examples:
 				   );
 
   # indicate our pasphrase through the
-  # convience method
+  # convenience method
   $gnupg->passphrase( $passphrase );
 
   # this sets up the communication
