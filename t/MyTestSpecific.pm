@@ -55,8 +55,14 @@ struct( Text => { fn => "\$", fh => "\$", data => "\$" } );
 $texts{plain} = Text->new();
 $texts{plain}->fn( 'test/plain.1.txt' );
 
+$texts{alt_plain} = Text->new();
+$texts{alt_plain}->fn( 'test/plain.2.txt' );
+
 $texts{encrypted} = Text->new();
 $texts{encrypted}->fn( 'test/encrypted.1.gpg' );
+
+$texts{alt_encrypted} = Text->new();
+$texts{alt_encrypted}->fn( 'test/encrypted.2.gpg' );
 
 $texts{signed} = Text->new();
 $texts{signed}->fn( 'test/signed.1.asc' );
@@ -68,7 +74,7 @@ $texts{temp} = Text->new();
 $texts{temp}->fn( 'test/temp' );
 
 
-foreach my $name ( qw( plain encrypted signed key ) )
+foreach my $name ( qw( plain alt_plain encrypted alt_encrypted signed key ) )
 {
     my $entry = $texts{$name};
     my $filename = $entry->fn();
@@ -90,7 +96,7 @@ sub reset_handles
         stderr  => $stderr
       );
 
-    foreach my $name ( qw( plain encrypted signed key ) )
+    foreach my $name ( qw( plain alt_plain encrypted alt_encrypted signed key ) )
     {
         my $entry = $texts{$name};
         my $filename = $entry->fn();
