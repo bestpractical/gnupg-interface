@@ -19,7 +19,7 @@ TEST
     copy('test/gpg.conf', 'test/gnupghome/gpg.conf');
     reset_handles();
 
-    my $pid = $gnupg->import_keys(command_args => [ 'test/pubring.gpg', 'test/secring.gpg' ],
+    my $pid = $gnupg->import_keys(command_args => [ 'test/public_keys.pgp', 'test/secret_keys.pgp' ],
                                   options => [ 'batch'],
                                   handles => $handles);
     waitpid $pid, 0;
