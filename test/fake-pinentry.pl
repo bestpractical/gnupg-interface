@@ -21,7 +21,7 @@ while (<STDIN>) {
   chomp;
   next if (/^$/);
   next if (/^#/);
-  print ("D test\n") if (/^getpin/i);
+  print ("D supercalifragilisticexpialidocious\n") if (/^getpin/i);
   print "OK\n";
   exit if (/^bye/i);
 }

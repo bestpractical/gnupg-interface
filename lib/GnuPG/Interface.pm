@@ -106,6 +106,14 @@ sub fork_attach_exec( $% ) {
     my ( $self, %args ) = @_;
 
     my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
+    my $use_loopback_pinentry = 0;
+
+    # WARNING: this assumes that we're using the "modern" GnuPG suite
+    # -- version 2.1.x or later.  It's not clear to me how we can
+    # safely and efficiently avoid this assumption (see
+    # https://lists.gnupg.org/pipermail/gnupg-devel/2016-October/031800.html)
+    $use_loopback_pinentry = 1
+      if ($handles->passphrase());
 
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
@@ -293,8 +301,12 @@ sub fork_attach_exec( $% ) {
             $self->options->$option($fileno);
         }
 
+        my @args = $self->options->get_args();
+        push @args, '--pinentry-mode', 'loopback'
+          if $use_loopback_pinentry;
+
         my @command = (
-            $self->call(), $self->options->get_args(),
+            $self->call(), @args,
             @commands,     @command_args
         );
 
@@ -1005,12 +1017,24 @@ and standard error will be tied to the running program's standard error,
 standard output, or standard error.  If the B<status> or B<logger> handle
 is not defined, this channel of communication is never established with GnuPG,
 and so this information is not generated and does not come into play.
+
 If the B<passphrase> data member handle of the B<handles> object
 is not defined, but the the B<passphrase> data member handle of GnuPG::Interface
 object is, GnuPG::Interface will handle passing this information into GnuPG
 for the user as a convenience.  Note that this will result in
 GnuPG::Interface storing the passphrase in memory, instead of having
 it simply 'pass-through' to GnuPG via a handle.
+
+If neither the B<passphrase> data member of the GnuPG::Interface nor
+the B<passphrase> data member of the B<handles> object is defined,
+then GnuPG::Interface assumes that access and control over the secret
+key will be handled by the running gpg-agent process.  This represents
+the simplest mode of operation with the GnuPG "modern" suite (version
+2.1 and later).  It is also the preferred mode for tools intended to
+be user-facing, since the user will be prompted directly by gpg-agent
+for use of the secret key material.  Note that for programmatic use,
+this mode requires the gpg-agent and pinentry to already be correctly
+configured.
 
 =back
 
