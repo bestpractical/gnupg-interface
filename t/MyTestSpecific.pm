@@ -46,7 +46,7 @@ $gpg_is_modern = ($version[0] > 2 || ($version[0] == 2 && $version[1] >= 1));
 $gnupg->options->hash_init( homedir              => 'test/gnupghome',
                             armor                => 1,
                             meta_interactive     => 0,
-                            meta_signing_key_id  => '0xF950DA9C',
+                            meta_signing_key_id  => '0x93AFC4B1B0288A104996B44253AE596EF950DA9C',
                             always_trust         => 1,
                           );
 

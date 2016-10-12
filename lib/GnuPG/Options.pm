@@ -198,7 +198,7 @@ GnuPG::Options - GnuPG options embodiment
 
   # assuming $gnupg is a GnuPG::Interface object
   $gnupg->options->armor( 1 );
-  $gnupg->options->push_recipients( 'ftobin', '0xABCD1234' );
+  $gnupg->options->push_recipients( 'ftobin', '0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234' );
 
 =head1 DESCRIPTION
 

@@ -19,7 +19,7 @@ TEST
 {
     reset_handles();
 
-    my @returned_keys = $gnupg->get_public_keys_with_sigs( '0xF950DA9C' );
+    my @returned_keys = $gnupg->get_public_keys_with_sigs( '0x93AFC4B1B0288A104996B44253AE596EF950DA9C' );
 
     return 0 unless @returned_keys == 1;
 
