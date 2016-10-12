@@ -55,7 +55,7 @@ TEST
     reset_handles();
 
     my $pid = $gnupg->list_secret_keys( handles      => $handles,
-                                        command_args => '0xF950DA9C' );
+                                        command_args => '0x93AFC4B1B0288A104996B44253AE596EF950DA9C' );
     close $stdin;
 
     $outfile = 'test/secret-keys/2.out';
@@ -80,7 +80,7 @@ TEST
     $handles->options( 'stdout' )->{direct} = 1;
 
     my $pid = $gnupg->list_secret_keys( handles      => $handles,
-                                        command_args => '0xF950DA9C' );
+                                        command_args => '0x93AFC4B1B0288A104996B44253AE596EF950DA9C' );
 
     waitpid $pid, 0;
 

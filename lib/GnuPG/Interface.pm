@@ -1130,7 +1130,7 @@ The following setup can be done before any of the following examples:
 
   $gnupg->options->hash_init( armor    => 1,
                               recipients => [ 'ftobin@uiuc.edu',
-                                              '0xABCD1234' ],
+                                              '0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234' ],
                               meta_interactive => 0 ,
                             );
 
@@ -1253,7 +1253,7 @@ The following setup can be done before any of the following examples:
   # and read from our input, because no input is needed!
   my $handles = GnuPG::Handles->new();
 
-  my @ids = ( 'ftobin', '0xABCD1234' );
+  my @ids = ( 'ftobin', '0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234' );
 
   # this time we need to specify something for
   # command_args because --list-public-keys takes
@@ -1265,7 +1265,7 @@ The following setup can be done before any of the following examples:
 
 =head2 Creating GnuPG::PublicKey Objects
 
-  my @ids = [ 'ftobin', '0xABCD1234' ];
+  my @ids = [ 'ftobin', '0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234' ];
 
   my @keys = $gnupg->get_public_keys( @ids );
 
