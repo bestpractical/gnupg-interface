@@ -12,6 +12,8 @@ use File::Path qw (remove_tree);
 TEST
 {
     my $err = [];
+    # kill off any long-lived gpg-agent, ignoring errors:
+    system('gpgconf', '--homedir=test/gnupghome', '--quiet', '--kill', 'gpg-agent');
     remove_tree('test/gnupghome', {error => \$err});
     return ! @$err;
 };
