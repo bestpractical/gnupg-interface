@@ -17,6 +17,9 @@ TEST
     $agentconf->write("pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n");
     $agentconf->close();
     copy('test/gpg.conf', 'test/gnupghome/gpg.conf');
+    # reset the state of any long-lived gpg-agent, ignoring errors:
+    system('gpgconf', '--homedir=test/gnupghome', '--quiet', '--kill', 'gpg-agent');
+
     reset_handles();
 
     my $pid = $gnupg->import_keys(command_args => [ 'test/public_keys.pgp', 'test/secret_keys.pgp', 'test/new_secret.pgp' ],
