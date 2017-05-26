@@ -23,8 +23,9 @@ TEST
     $outfile = 'test/secret-keys/1.out';
     my $out = IO::File->new( "> $outfile" )
       or die "cannot open $outfile for writing: $ERRNO";
+    my $modern_pubring_line = $gnupg->options->homedir() . "/pubring.kbx\n";
     while (<$stdout>) {
-      if ($gpg_is_modern && /^\/.*\/test\/gnupghome\/pubring.kbx$/) {
+      if ($gpg_is_modern && ($_ eq $modern_pubring_line)) {
         $out->print("test/gnupghome/pubring.kbx\n");
       } elsif ($gpg_is_modern && /^--*$/) {
         $out->print("--------------------------\n");

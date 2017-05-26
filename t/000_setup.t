@@ -12,13 +12,14 @@ use File::Copy;
 
 TEST
 {
-    make_path('test/gnupghome', { mode => 0700 });
-    my $agentconf = IO::File->new( "> test/gnupghome/gpg-agent.conf" );
+    my $homedir = $gnupg->options->homedir();
+    make_path($homedir, { mode => 0700 });
+    my $agentconf = IO::File->new( "> " . $homedir . "/gpg-agent.conf" );
     $agentconf->write("pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n");
     $agentconf->close();
-    copy('test/gpg.conf', 'test/gnupghome/gpg.conf');
+    copy('test/gpg.conf', $homedir . '/gpg.conf');
     # reset the state of any long-lived gpg-agent, ignoring errors:
-    system('gpgconf', '--homedir=test/gnupghome', '--quiet', '--kill', 'gpg-agent');
+    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent');
 
     reset_handles();
 
