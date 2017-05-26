@@ -22,6 +22,7 @@ use IO::Seekable;
 use File::Compare;
 use Exporter;
 use Class::Struct;
+use File::Temp qw (tempdir);
 
 use GnuPG::Interface;
 use GnuPG::Handles;
@@ -40,10 +41,25 @@ use vars qw( @ISA           @EXPORT
 
 $gnupg = GnuPG::Interface->new( passphrase => 'test' );
 
+
+my $homedir;
+if (-f "test/gnupghome") {
+  my $record = IO::File->new( "< test/gnupghome" );
+  $homedir = <$record>;
+  $record->close();
+} else {
+  $homedir = tempdir( DIR => '/tmp');
+  my $record = IO::File->new( "> test/gnupghome" );
+  $record->write($homedir);
+  $record->close();
+}
+
 my @version = split('\.', $gnupg->version());
 $gpg_is_modern = ($version[0] > 2 || ($version[0] == 2 && $version[1] >= 1));
 
-$gnupg->options->hash_init( homedir              => 'test/gnupghome',
+
+
+$gnupg->options->hash_init( homedir              => $homedir,
                             armor                => 1,
                             meta_interactive     => 0,
                             meta_signing_key_id  => '0x93AFC4B1B0288A104996B44253AE596EF950DA9C',
