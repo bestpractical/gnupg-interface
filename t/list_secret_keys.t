@@ -23,11 +23,12 @@ TEST
     $outfile = 'test/secret-keys/1.out';
     my $out = IO::File->new( "> $outfile" )
       or die "cannot open $outfile for writing: $ERRNO";
-    my $modern_pubring_line = $gnupg->options->homedir() . "/pubring.kbx\n";
+    my $seckey_file = $gpg_is_modern ? 'pubring.kbx' : 'secring.gpg';
+    my $pubring_line = $gnupg->options->homedir() . '/' . $seckey_file . "\n";
     while (<$stdout>) {
-      if ($gpg_is_modern && ($_ eq $modern_pubring_line)) {
-        $out->print("test/gnupghome/pubring.kbx\n");
-      } elsif ($gpg_is_modern && /^--*$/) {
+      if ($_ eq $pubring_line) {
+        $out->print('test/gnupghome/'.$seckey_file."\n");
+      } elsif (/^--*$/) {
         $out->print("--------------------------\n");
       } else {
         $out->print( $_ );

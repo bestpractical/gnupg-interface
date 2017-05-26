@@ -112,8 +112,11 @@ sub fork_attach_exec( $% ) {
     # -- version 2.1.x or later.  It's not clear to me how we can
     # safely and efficiently avoid this assumption (see
     # https://lists.gnupg.org/pipermail/gnupg-devel/2016-October/031800.html)
+    #
+    # as a (brittle and incomplete) cleanup, we will avoid trying to
+    # send pinentry-loopback if the program is invoked as "gpg1"
     $use_loopback_pinentry = 1
-      if ($handles->passphrase());
+      if ($handles->passphrase() && ! ($self->call =~ m/gpg1$/));
 
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
