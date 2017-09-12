@@ -23,10 +23,14 @@ use vars qw( $VERSION );
 use Fatal qw( open close pipe fcntl );
 use Class::Struct;
 use IO::Handle;
+use IO::Select;
+use Errno qw(EPIPE);
 
 use Math::BigInt try => 'GMP';
 use GnuPG::Options;
 use GnuPG::Handles;
+
+my $DEBUG = 0;
 
 $VERSION = '0.52';
 
@@ -820,6 +824,138 @@ sub test_default_key_passphrase() {
     return 0;
 }
 
+sub decrypt_rw( $% ) {
+    my ( $self, %args ) = @_;
+
+    my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
+    my $cipher_text = $args{cipher_text} or croak 'no cipher_text passed';
+    my $gpg_passphrase = $args{gpg_passphrase} or croak 'no gpg_passphrase passed';
+
+    my $read = $self->_communicate( [ $handles->output(), $handles->error() $handles->status() ],
+                                    [ $handles->input(), $handles->passphrase() ],
+                                    { $handles->input() => $cipher_text, ( $handles->passphrase() = $gpg_passphrase ) } );
+    return $read;
+}
+
+sub encrypt_rw( $% ) {
+    my ( $self, %args ) = @_;
+
+    my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
+    my $plain_text = $args{plain_text} or croak 'no plain_text passed';
+
+    my $read = $self->_communicate( [ $handles->output(), $handles->error() ],
+                                    [ $handles->input() ],
+                                    { $handles->input() => $plain_text } );
+    return $read;
+}
+
+# graciously taken from Mail-GnuPG
+# interleave reads and writes
+# input parameters:
+#  $rhandles - array ref with a list of file handles for reading
+#  $whandles - array ref with a list of file handles for writing
+#  $wbuf_of  - hash ref indexed by the stringified handles
+#              containing the data to write
+# return value:
+#  $rbuf_of  - hash ref indexed by the stringified handles
+#              containing the data that has been read
+#
+# read and write errors due to EPIPE (gpg exit) are skipped silently on the
+# assumption that gpg will explain the problem on the error handle
+#
+# other errors cause a non-fatal warning, processing continues on the rest
+# of the file handles
+#
+# NOTE: all the handles get closed inside this function
+
+sub _communicate {
+    my $blocksize = 2048;
+    my ($rhandles, $whandles, $wbuf_of) = @_;
+    my $rbuf_of = {};
+
+    # the current write offsets, again indexed by the stringified handle
+    my $woffset_of;
+
+    my $reader = IO::Select->new;
+    for (@$rhandles) {
+        $reader->add($_);
+        $rbuf_of->{$_} = '';
+    }
+
+    my $writer = IO::Select->new;
+    for (@$whandles) {
+        die("no data supplied for handle " . fileno($_)) if !exists $wbuf_of->{$_};
+        if ($wbuf_of->{$_}) {
+            $writer->add($_);
+        } else { # nothing to write
+            close $_;
+        }
+    }
+
+    # we'll handle EPIPE explicitly below
+    local $SIG{PIPE} = 'IGNORE';
+
+    while ($reader->handles || $writer->handles) {
+        my @ready = IO::Select->select($reader, $writer, undef, undef);
+        if (!@ready) {
+            die("error doing select: $!");
+        }
+        my ($rready, $wready, $eready) = @ready;
+        if (@$eready) {
+            die("select returned an unexpected exception handle, this shouldn't happen");
+        }
+        for my $rhandle (@$rready) {
+            my $n = fileno($rhandle);
+            my $count = sysread($rhandle, $rbuf_of->{$rhandle},
+                                $blocksize, length($rbuf_of->{$rhandle}));
+            warn("read $count bytes from handle $n") if $DEBUG;
+            if (!defined $count) { # read error
+                if ($!{EPIPE}) {
+                    warn("read failure (gpg exited?) from handle $n: $!")
+                        if $DEBUG;
+                } else {
+                    warn("read failure from handle $n: $!");
+                }
+                $reader->remove($rhandle);
+                close $rhandle;
+                next;
+            }
+            if ($count == 0) { # EOF
+                warn("read done from handle $n") if $DEBUG;
+                $reader->remove($rhandle);
+                close $rhandle;
+                next;
+            }
+        }
+        for my $whandle (@$wready) {
+            my $n = fileno($whandle);
+            $woffset_of->{$whandle} = 0 if !exists $woffset_of->{$whandle};
+            my $count = syswrite($whandle, $wbuf_of->{$whandle},
+                                 $blocksize, $woffset_of->{$whandle});
+            if (!defined $count) {
+                if ($!{EPIPE}) { # write error
+                    warn("write failure (gpg exited?) from handle $n: $!")
+                        if $DEBUG;
+                } else {
+                    warn("write failure from handle $n: $!");
+                }
+                $writer->remove($whandle);
+                close $whandle;
+                next;
+            }
+            warn("wrote $count bytes to handle $n") if $DEBUG;
+            $woffset_of->{$whandle} += $count;
+            if ($woffset_of->{$whandle} >= length($wbuf_of->{$whandle})) {
+                warn("write done to handle $n") if $DEBUG;
+                $writer->remove($whandle);
+                close $whandle;
+                next;
+            }
+        }
+    }
+    return $rbuf_of;
+}
+
 1;
 
 ##############################################################
@@ -1042,6 +1178,26 @@ key specified in the B<options> data member.
 =item version()
 
 Returns the version of GnuPG that GnuPG::Interface is running.
+
+=item decrypt_rw( %$ )
+
+This helper method should handle large amounts of data (tested with 500k lines).
+Handles all reading and writing to sockets for decryption.
+Returns the decrypted plain text and closes the passed filehandles.
+$handles should be the same handles you passed to B<decrypt> and
+contain handles for (output, input, error, status, passphrase)
+
+  my $dec_text = $gnupg->( handles => $handles, cipher_text => $cipher_text );
+
+=item encrypt_rw( %$ )
+
+This helper method should handle large amounts of data (tested with 500k lines).
+Handle all reading and writing to sockets for encryption.
+Returns the encrypted text and closes the passed filehandles.
+$handles should be the same handles you passed to B<encrypt>
+and contain (output, input, error)
+
+  my $enc_text = $gnupg->( handles => $handles, plain_text => $plain_text );
 
 =back
 
@@ -1316,7 +1472,7 @@ Your problem may be due to buffering issues; when GnuPG reads/writes
 to B<non-direct> filehandles (those that are sent to filehandles
 which you read to from into memory, not that those access the disk),
 buffering issues can mess things up.  I recommend looking into
-L<GnuPG::Handles/options>.
+L<GnuPG::Handles/options> or try B<encrypt_rw> and B<decrypt_rw>.
 
 =back
 
@@ -1338,6 +1494,7 @@ Currently there are problems when transmitting large quantities
 of information over handles; I'm guessing this is due
 to buffering issues.  This bug does not seem specific to this package;
 IPC::Open3 also appears affected.
+Try B<encrypt_rw> and B<decrypt_rw> for handling large amounts of data.
 
 I don't know yet how well this modules handles parsing OpenPGP v3 keys.
 
