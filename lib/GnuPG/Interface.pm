@@ -36,6 +36,13 @@ has $_ => (
     clearer => 'clear_' . $_,
 ) for qw(call passphrase);
 
+has version => (
+    isa      => 'Str',
+    is       => 'ro',
+    reader   => 'version',
+    writer   => '_set_version',
+);
+
 has options => (
     isa        => 'GnuPG::Options',
     is         => 'rw',
@@ -52,6 +59,7 @@ sub BUILD {
 
     $self->hash_init( call => 'gpg' );
     $self->hash_init(%$args);
+    $self->_set_version($self->_version());
 }
 
 struct(
@@ -777,7 +785,7 @@ sub search_keys( $% ) {
     );
 }
 
-sub version {
+sub _version {
     my ( $self ) = @_;
 
     my $out = IO::Handle->new;
