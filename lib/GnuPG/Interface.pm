@@ -43,6 +43,13 @@ has version => (
     writer   => '_set_version',
 );
 
+has branch => (
+    isa      => 'Str',
+    is       => 'ro',
+    reader   => 'branch',
+    writer   => '_set_branch',
+);
+
 has options => (
     isa        => 'GnuPG::Options',
     is         => 'rw',
@@ -60,6 +67,12 @@ sub BUILD {
     $self->hash_init( call => 'gpg' );
     $self->hash_init(%$args);
     $self->_set_version($self->_version());
+
+    my @version = split('\.', $self->version());
+
+    $self->_set_branch('classic') if $version[0] == 1;
+    $self->_set_branch('stable') if $version[0] == 2 && $version[1] == 0;
+    $self->_set_branch('modern') if $version [0] > 2 || $version[0] == 2 && $version[2] >= 1;
 }
 
 struct(
@@ -116,15 +129,14 @@ sub fork_attach_exec( $% ) {
     my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
     my $use_loopback_pinentry = 0;
 
-    # WARNING: this assumes that we're using the "modern" GnuPG suite
-    # -- version 2.1.x or later.  It's not clear to me how we can
-    # safely and efficiently avoid this assumption (see
-    # https://lists.gnupg.org/pipermail/gnupg-devel/2016-October/031800.html)
+    # Don't use loopback pintentry for non-modern GPG
     #
-    # as a (brittle and incomplete) cleanup, we will avoid trying to
-    # send pinentry-loopback if the program is invoked as "gpg1"
+    # Check that $version is populated before running is_modern(). If
+    # we are invoked as part of BUILD to populate $version, then any
+    # methods that depend on $version will fail. We don't care about
+    # loopback when we're called just to check gpg version.
     $use_loopback_pinentry = 1
-      if ($handles->passphrase() && ! ($self->call =~ m/gpg1$/));
+      if ($handles->passphrase() && $self->version && $self->is_modern );
 
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
@@ -794,6 +806,21 @@ sub _version {
     my $line = $out->getline;
     $line =~ /(\d+\.\d+\.\d+)/;
     return $1;
+}
+
+sub is_classic {
+    my ( $self ) = @_;
+    return $self->branch eq 'classic';
+}
+
+sub is_stable {
+    my ( $self ) = @_;
+    return $self->branch eq 'stable';
+}
+
+sub is_modern {
+    my ( $self ) = @_;
+    return $self->branch eq 'modern';
 }
 
 sub test_default_key_passphrase() {
