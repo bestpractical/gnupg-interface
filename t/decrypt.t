@@ -63,6 +63,8 @@ TEST
 # test without default_passphrase (that is, by using the agent)
 TEST
 {
+    return 1 unless $gnupg->is_modern();
+
     reset_handles();
 
     $handles->stdin( $texts{alt_encrypted}->fh() );
@@ -83,5 +85,7 @@ TEST
 
 TEST
 {
+    return 1 unless $gnupg->is_modern();
+
     return compare( $texts{alt_plain}->fn(), $texts{temp}->fn() ) == 0;
 };
