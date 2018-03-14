@@ -23,7 +23,7 @@ TEST
     $outfile = 'test/secret-keys/1.out';
     my $out = IO::File->new( "> $outfile" )
       or die "cannot open $outfile for writing: $ERRNO";
-    my $seckey_file = $gpg_is_modern ? 'pubring.kbx' : 'secring.gpg';
+    my $seckey_file = $gnupg->is_modern ? 'pubring.kbx' : 'secring.gpg';
     my $pubring_line = $gnupg->options->homedir() . '/' . $seckey_file . "\n";
     while (<$stdout>) {
       if ($_ eq $pubring_line) {
@@ -44,9 +44,7 @@ TEST
 
 TEST
 {
-    my $suffix = '0';
-    $suffix = 'modern' if ($gpg_is_modern);
-    my @files_to_test = ( 'test/secret-keys/1.'.$suffix.'.test' );
+    my @files_to_test = ( 'test/secret-keys/1.'.$gnupg->branch.'.test' );
 
     return file_match( $outfile, @files_to_test );
 };

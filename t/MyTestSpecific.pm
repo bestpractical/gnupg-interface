@@ -30,13 +30,13 @@ use GnuPG::Handles;
 use vars qw( @ISA           @EXPORT
              $stdin         $stdout           $stderr
              $gpg_program   $handles          $gnupg
-             %texts         $gpg_is_modern
+             %texts
            );
 
 @ISA    = qw( Exporter );
 @EXPORT = qw( stdin                  stdout          stderr
               gnupg_program handles  reset_handles
-              texts                  file_match      gpg_is_modern
+              texts                  file_match
             );
 
 $gnupg = GnuPG::Interface->new( passphrase => 'test' );
@@ -53,11 +53,6 @@ if (-f "test/gnupghome") {
   $record->write($homedir);
   $record->close();
 }
-
-my @version = split('\.', $gnupg->version());
-$gpg_is_modern = ($version[0] > 2 || ($version[0] == 2 && $version[1] >= 1));
-
-
 
 $gnupg->options->hash_init( homedir              => $homedir,
                             armor                => 1,

@@ -45,7 +45,7 @@ TEST
         usage_flags            => 'scaESCA',
         pubkey_data            => $pubkey_data,
     };
-    if (!$gpg_is_modern) {
+    if (!$gnupg->is_modern) {
       # older versions don't report ownertrust or pubkey_data for secret keys:
       delete $args->{pubkey_data};
       $args->{owner_trust} = '';
@@ -91,7 +91,7 @@ TEST
         pubkey_data              => $subkey_pub_data,
       };
 
-    if (!$gpg_is_modern) {
+    if (!$gnupg->is_modern) {
       # older versions do not report pubkey data for secret keys
       delete $sub_args->{pubkey_data};
     }
@@ -105,7 +105,7 @@ TEST
 
     $handmade_key->push_subkeys( $subkey );
     # older versions do not report designated revokers for secret keys
-    $handmade_key->push_revokers( $revoker ) if ($gpg_is_modern);
+    $handmade_key->push_revokers( $revoker ) if ($gnupg->is_modern);
 
     $handmade_key->compare( $given_key );
 };
