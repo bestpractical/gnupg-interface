@@ -44,7 +44,8 @@ TEST
 
 TEST
 {
-    my @files_to_test = ( 'test/secret-keys/1.'.$gnupg->branch.'.test' );
+    my $branch = $gnupg->is_modern ? 'modern' : '0';
+    my @files_to_test = ( 'test/secret-keys/1.'.$branch.'.test' );
 
     return file_match( $outfile, @files_to_test );
 };
