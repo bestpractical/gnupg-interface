@@ -13,8 +13,10 @@ TEST
 {
     my $homedir = $gnupg->options->homedir();
     my $err = [];
+    # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
+    # will not start an agent when using classic gpg. For modern gpg,
     # kill off any long-lived gpg-agent, ignoring errors:
-    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent');
+    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent') if $gnupg->is_modern();
     remove_tree($homedir, {error => \$err});
     unlink('test/gnupghome');
     return ! @$err;
