@@ -36,18 +36,25 @@ has $_ => (
     clearer => 'clear_' . $_,
 ) for qw(call passphrase);
 
+# NB: GnuPG versions
+#
+# There are three primary "branches" of GnuPG: classic, stable, and
+# modern. They each behave slightly differently. Each branch
+# corresponds to contiguous versions of GnuPG.
+#
+# When using features specific to branches, check that the system's
+# version of gpg corresponds to the branch.
+#
+# classic: < 2.0
+# stable:  >= 2.0 and < 2.1
+# modern:  >= 2.1
+#
+# You can find examples of version comparison in the tests.
 has version => (
     isa      => 'Str',
     is       => 'ro',
     reader   => 'version',
     writer   => '_set_version',
-);
-
-has branch => (
-    isa      => 'Str',
-    is       => 'ro',
-    reader   => 'branch',
-    writer   => '_set_branch',
 );
 
 has options => (
@@ -67,12 +74,6 @@ sub BUILD {
     $self->hash_init( call => 'gpg' );
     $self->hash_init(%$args);
     $self->_set_version($self->_version());
-
-    my @version = split('\.', $self->version());
-
-    $self->_set_branch('classic') if $version[0] == 1;
-    $self->_set_branch('stable') if $version[0] == 2 && $version[1] == 0;
-    $self->_set_branch('modern') if $version [0] > 2 || $version[0] == 2 && $version[2] >= 1;
 }
 
 struct(
@@ -131,12 +132,12 @@ sub fork_attach_exec( $% ) {
 
     # Don't use loopback pintentry for non-modern GPG
     #
-    # Check that $version is populated before running is_modern(). If
+    # Check that $version is populated before running cmp_version. If
     # we are invoked as part of BUILD to populate $version, then any
     # methods that depend on $version will fail. We don't care about
     # loopback when we're called just to check gpg version.
     $use_loopback_pinentry = 1
-      if ($handles->passphrase() && $self->version && $self->is_modern );
+      if ($handles->passphrase() && $self->version && $self->cmp_version($self->version, '2.1') > 0 );
 
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
@@ -808,19 +809,17 @@ sub _version {
     return $1;
 }
 
-sub is_classic {
-    my ( $self ) = @_;
-    return $self->branch eq 'classic';
-}
-
-sub is_stable {
-    my ( $self ) = @_;
-    return $self->branch eq 'stable';
-}
-
-sub is_modern {
-    my ( $self ) = @_;
-    return $self->branch eq 'modern';
+sub cmp_version($$) {
+    my ( $self, $a, $b ) = (@_);
+    my @a = split '\.', $a;
+    my @b = split '\.', $b;
+    @a > @b
+        ? push @b, (0) x (@a-@b)
+        : push @a, (0) x (@b-@a);
+    for ( my $i = 0; $i < @a; $i++ ) {
+        return $a[$i] <=> $b[$i] if $a[$i] <=> $b[$i];
+    }
+    return 0;
 }
 
 sub test_default_key_passphrase() {

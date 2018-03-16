@@ -16,13 +16,13 @@ TEST
     make_path($homedir, { mode => 0700 });
     my $agentconf = IO::File->new( "> " . $homedir . "/gpg-agent.conf" );
     # Classic gpg can't use loopback pinentry programs like fake-pinentry.pl.
-    $agentconf->write("pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n") if $gnupg->is_modern;
+    $agentconf->write("pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n") if $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
     $agentconf->close();
     copy('test/gpg.conf', $homedir . '/gpg.conf');
     # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
     # will not start an agent when using classic gpg. For modern gpg,
     # reset the state of any long-lived gpg-agent, ignoring errors:
-    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent') if $gnupg->is_modern;
+    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent') if $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
 
     reset_handles();
 

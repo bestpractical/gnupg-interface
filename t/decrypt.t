@@ -63,7 +63,7 @@ TEST
 # test without default_passphrase (that is, by using the agent)
 TEST
 {
-    return 1 unless $gnupg->is_modern();
+    return 1 unless $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
 
     reset_handles();
 
@@ -85,7 +85,7 @@ TEST
 
 TEST
 {
-    return 1 unless $gnupg->is_modern();
+    return 1 unless $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
 
     return compare( $texts{alt_plain}->fn(), $texts{temp}->fn() ) == 0;
 };
