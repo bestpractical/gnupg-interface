@@ -11,12 +11,15 @@ use File::Path qw (remove_tree);
 # this is actually no test, just cleanup.
 TEST
 {
+    return 1 unless $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
     my $homedir = $gnupg->options->homedir();
     my $err = [];
-    # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
-    # will not start an agent when using classic gpg. For modern gpg,
-    # kill off any long-lived gpg-agent, ignoring errors:
-    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent') if $gnupg->cmp_version($gnupg->version, '2.1') >=0;
+    # kill off any long-lived gpg-agent, ignoring errors.
+    # gpgconf versions < 2.1.11 do not support '--homedir', but still
+    # respect the GNUPGHOME environment variable
+    $ENV{'GNUPGHOME'} = $homedir;
+    system('gpgconf', '--quiet', '--kill', 'gpg-agent');
+    delete $ENV{'GNUPGHOME'};
     remove_tree($homedir, {error => \$err});
     unlink('test/gnupghome');
     return ! @$err;
