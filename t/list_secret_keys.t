@@ -44,9 +44,19 @@ TEST
 
 TEST
 {
-    my $branch = $gnupg->cmp_version($gnupg->version, '2.1') >= 0 ? 'modern' : '0';
-    print $branch."\n";
-    my @files_to_test = ( 'test/secret-keys/1.'.$branch.'.test' );
+    my $keylist;
+    if ($gnupg->cmp_version($gnupg->version, '2.1') < 0) {
+	$keylist = '0';
+    }
+    else {
+	if ($gnupg->cmp_version($gnupg->version, '2.1.11') <= 0) {
+	    $keylist = '1';
+	}
+	else {
+	    $keylist = '2';
+	}
+    }
+    my @files_to_test = ( 'test/secret-keys/1.'.$keylist.'.test' );
 
     return file_match( $outfile, @files_to_test );
 };
