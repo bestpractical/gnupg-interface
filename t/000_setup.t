@@ -16,7 +16,10 @@ TEST
     make_path($homedir, { mode => 0700 });
     my $agentconf = IO::File->new( "> " . $homedir . "/gpg-agent.conf" );
     # Classic gpg can't use loopback pinentry programs like fake-pinentry.pl.
-    $agentconf->write("pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n") if $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
+    $agentconf->write(
+	"allow-loopback-pinentry\n".
+	"pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n"
+    ) if $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
     $agentconf->close();
     copy('test/gpg.conf', $homedir . '/gpg.conf');
     # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
