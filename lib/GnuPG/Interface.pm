@@ -695,15 +695,17 @@ sub encrypt( $% ) {
 
 sub encrypt_symmetrically( $% ) {
     my ( $self, %args ) = @_;
-    # Strip the homedir and put it back after encrypting; gpg 2.0.x
-    # fails symmetric encryption when one is passed.
+    # Strip the homedir and put it back after encrypting; gpg > 2.0.0
+    # and < 2.1.0 fail symmetric encryption when one is passed.
     my $homedir = $self->options->homedir;
-    $self->options->clear_homedir;
+    $self->options->clear_homedir
+        unless $self->cmp_version($self->version, '2.1') >= 0;
     my $pid = $self->wrap_call(
         %args,
         commands => ['--symmetric']
     );
-    $self->options->homedir($homedir);
+    $self->options->homedir($homedir)
+        unless $self->cmp_version($self->version, '2.1') >= 0;
     return $pid;
 }
 
