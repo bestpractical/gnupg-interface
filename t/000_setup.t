@@ -22,8 +22,11 @@ TEST
     # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
     # will not start an agent when using classic gpg. For modern gpg,
     # reset the state of any long-lived gpg-agent, ignoring errors:
-    system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent') if $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
-
+    if ($gnupg->cmp_version($gnupg->version, '2.1') >= 0) {
+	$ENV{'GNUPGHOME'} = $homedir;
+	system('gpgconf', '--quiet', '--kill', 'gpg-agent');
+	delete $ENV{'GNUPGHOME'};
+    }
     reset_handles();
 
     my $pid = $gnupg->import_keys(command_args => [ 'test/public_keys.pgp', 'test/secret_keys.pgp', 'test/new_secret.pgp' ],
