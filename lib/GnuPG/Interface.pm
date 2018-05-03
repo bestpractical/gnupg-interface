@@ -99,17 +99,18 @@ sub wrap_call( $% ) {
     $handles->stdout('>&STDOUT') unless $handles->stdout();
     $handles->stderr('>&STDERR') unless $handles->stderr();
 
-    # so call me sexist; English just doen't cope well
-    my $needs_passphrase_handled_for_him
+    $self->passphrase("\n") unless $self->passphrase();
+
+    my $needs_passphrase_handled
         = ( $self->passphrase() and not $handles->passphrase() ) ? 1 : 0;
 
-    if ($needs_passphrase_handled_for_him) {
+    if ($needs_passphrase_handled) {
         $handles->passphrase( IO::Handle->new() );
     }
 
     my $pid = $self->fork_attach_exec(%args);
 
-    if ($needs_passphrase_handled_for_him) {
+    if ($needs_passphrase_handled) {
         my $passphrase_handle = $handles->passphrase();
         print $passphrase_handle $self->passphrase();
         close $passphrase_handle;
