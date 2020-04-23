@@ -54,6 +54,7 @@ TEST
       );
 
 
+    # Note, blank user_id_string and different validity for expired sig in GPG 2.2.x
     my $uid0 = GnuPG::UserId->new( as_string =>  'GnuPG test key (for testing purposes only)',
                                    validity => '-');
     $uid0->push_signatures(
@@ -67,14 +68,9 @@ TEST
                             sig_class => 0x13,
                             validity => '!'),
       GnuPG::Signature->new(
+                            get_expired_test_sig_params($gnupg),
                             date => 953180097,
-                            algo_num => 17,
-                            is_exportable => 1,
-                            user_id_string => 'Frank J. Tobin <ftobin@neverending.org>',
-                            date_string => '2000-03-16',
-                            hex_id => '56FFD10A260C4FA3',
-                            sig_class => 0x10,
-                            validity => '!'),
+      ),
       GnuPG::Signature->new(
                             date => 949813093,
                             algo_num => 17,
@@ -95,6 +91,7 @@ TEST
                             validity => '!'),
                           );
 
+    # Note, blank user_id_string and different validity for expired sig in GPG 2.2.x
     my $uid1 = GnuPG::UserId->new( as_string =>  'Foo Bar (1)',
                                    validity => '-');
     $uid1->push_signatures(
@@ -108,14 +105,9 @@ TEST
                             sig_class => 0x13,
                             validity => '!'),
       GnuPG::Signature->new(
+                            get_expired_test_sig_params($gnupg),
                             date => 953180103,
-                            algo_num => 17,
-                            is_exportable => 1,
-                            user_id_string => 'Frank J. Tobin <ftobin@neverending.org>',
-                            date_string => '2000-03-16',
-                            hex_id => '56FFD10A260C4FA3',
-                            sig_class => 0x10,
-                            validity => '!'),
+      ),
       GnuPG::Signature->new(
                             date => 953179891,
                             algo_num => 17,
@@ -125,8 +117,6 @@ TEST
                             hex_id => '53AE596EF950DA9C',
                             sig_class => 0x13,
                             validity => '!'));
-
-
 
     $handmade_key->push_user_ids($uid0, $uid1);
 
