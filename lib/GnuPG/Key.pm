@@ -209,7 +209,7 @@ instantiated, and should always be undef.
 
 A list of Math::BigInt objects that correspond to the public key
 material for the given key. This member is empty on secret keys in
-GnuPG < 2.1.0. It is populated on secret keys In GnuPG >= 2.1.0.
+GnuPG 1.4. It is populated on secret keys In GnuPG >= 2.2.0.
 
 For DSA keys, the values are: prime (p), group order (q), group generator (g), y
 

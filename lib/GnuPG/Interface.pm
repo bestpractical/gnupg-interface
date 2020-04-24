@@ -38,16 +38,14 @@ has $_ => (
 
 # NB: GnuPG versions
 #
-# There are three primary "branches" of GnuPG: classic, stable, and
-# modern. They each behave slightly differently. Each branch
-# corresponds to contiguous versions of GnuPG.
+# There are now two supported versions of GnuPG: legacy 1.4 and stable 2.2
+# They are detected and each behave slightly differently.
 #
 # When using features specific to branches, check that the system's
 # version of gpg corresponds to the branch.
 #
-# classic: < 2.0
-# stable:  >= 2.0 and < 2.1
-# modern:  >= 2.1
+# legacy: 1.4
+# stable: >= 2.2
 #
 # You can find examples of version comparison in the tests.
 has version => (
@@ -131,14 +129,14 @@ sub fork_attach_exec( $% ) {
     my $handles = $args{handles} or croak 'no GnuPG::Handles passed';
     my $use_loopback_pinentry = 0;
 
-    # Don't use loopback pintentry for non-modern GPG
+    # Don't use loopback pintentry for legacy (1.4) GPG
     #
     # Check that $version is populated before running cmp_version. If
     # we are invoked as part of BUILD to populate $version, then any
     # methods that depend on $version will fail. We don't care about
     # loopback when we're called just to check gpg version.
     $use_loopback_pinentry = 1
-      if ($handles->passphrase() && $self->version && $self->cmp_version($self->version, '2.1') > 0 );
+      if ($handles->passphrase() && $self->version && $self->cmp_version($self->version, '2.2') > 0 );
 
     # deprecation support
     $args{commands} ||= $args{gnupg_commands};
@@ -696,17 +694,16 @@ sub encrypt( $% ) {
 
 sub encrypt_symmetrically( $% ) {
     my ( $self, %args ) = @_;
-    # Strip the homedir and put it back after encrypting; gpg > 2.0.0
-    # and < 2.1.0 fail symmetric encryption when one is passed.
+    # Strip the homedir and put it back after encrypting;
     my $homedir = $self->options->homedir;
     $self->options->clear_homedir
-        unless $self->cmp_version($self->version, '2.1') >= 0;
+        unless $self->cmp_version($self->version, '2.2') >= 0;
     my $pid = $self->wrap_call(
         %args,
         commands => ['--symmetric']
     );
     $self->options->homedir($homedir)
-        unless $self->cmp_version($self->version, '2.1') >= 0;
+        unless $self->cmp_version($self->version, '2.2') >= 0;
     return $pid;
 }
 
@@ -810,9 +807,14 @@ sub _version {
     my $line = $out->getline;
     $line =~ /(\d+\.\d+\.\d+)/;
 
+    my $version = $1;
+    unless ($self->cmp_version($version, '2.2') >= 0 or
+        ($self->cmp_version($version, '1.4') >= 0 and $self->cmp_version($version, '1.5') < 0 )) {
+        croak "GnuPG Version 1.4 or 2.2+ required";
+    }
     waitpid $pid, 0;
 
-    return $1;
+    return $version;
 }
 
 sub cmp_version($$) {
@@ -1072,8 +1074,8 @@ If neither the B<passphrase> data member of the GnuPG::Interface nor
 the B<passphrase> data member of the B<handles> object is defined,
 then GnuPG::Interface assumes that access and control over the secret
 key will be handled by the running gpg-agent process.  This represents
-the simplest mode of operation with the GnuPG "modern" suite (version
-2.1 and later).  It is also the preferred mode for tools intended to
+the simplest mode of operation with the GnuPG "stable" suite (version
+2.2 and later).  It is also the preferred mode for tools intended to
 be user-facing, since the user will be prompted directly by gpg-agent
 for use of the secret key material.  Note that for programmatic use,
 this mode requires the gpg-agent and pinentry to already be correctly
