@@ -35,6 +35,7 @@ use constant BOOLEANS => qw(
     meta_pgp_5_compatible
     meta_pgp_2_compatible
     meta_interactive
+    ignore_mdc_error
 );
 
 use constant SCALARS => qw(
@@ -49,6 +50,8 @@ use constant SCALARS => qw(
     options
     meta_signing_key
     meta_signing_key_id
+    debug_level
+    logger_file
 );
 
 use constant LISTS => qw(
@@ -93,6 +96,9 @@ for my $list (LISTS) {
 
 sub BUILD {
     my ( $self, $args ) = @_;
+    # Newer GnuPG will force failure for old ciphertext unless set
+    $args->{ignore_mdc_error} //= 1;
+
     $self->hash_init( meta_interactive => 1 );
     $self->hash_init(%$args);
 }
@@ -156,6 +162,11 @@ sub get_option_args {
 
     push @args, map { ( '--recipient',  $_ ) } $self->recipients();
     push @args, map { ( '--encrypt-to', $_ ) } $self->encrypt_to();
+
+    push @args, '--debug-level', $self->debug_level() if ($self->debug_level);
+    push @args, '--logger-file', $self->logger_file() if ($self->logger_file());
+
+    push @args, '--ignore-mdc-error' if ($self->ignore_mdc_error());
 
     return @args;
 }
