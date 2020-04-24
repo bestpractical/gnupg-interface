@@ -60,10 +60,10 @@ TEST
 };
 
 
-# test without default_passphrase (that is, by using the agent)
+# test without default_passphrase (that is, by using the agent, if ENV flag set)
 TEST
 {
-    return 1 unless $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
+    return 1 unless ($gnupg->cmp_version($gnupg->version, '2.2') >= 0 and $ENV{TEST_USE_GPG_AGENT});
 
     reset_handles();
 
@@ -85,7 +85,6 @@ TEST
 
 TEST
 {
-    return 1 unless $gnupg->cmp_version($gnupg->version, '2.1') >= 0;
-
+    return 1 unless ($gnupg->cmp_version($gnupg->version, '2.2') >= 0 and $ENV{TEST_USE_GPG_AGENT});
     return compare( $texts{alt_plain}->fn(), $texts{temp}->fn() ) == 0;
 };
