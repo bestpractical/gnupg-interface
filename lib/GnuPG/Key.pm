@@ -88,11 +88,12 @@ sub compare {
     hex_data
     expiration_date
     expiration_date_string
+    local_id
   );
   foreach $field (@can_be_undef) {
-    return 0 unless (defined $self->$field) == (defined $other->$field);
-    if (defined $self->$field) {
-      return 0 unless $self->$field eq $other->$field;
+    return 0 unless ((defined $self->$field && ( $self->$field ne '') ) == (defined $other->$field && ( $other->$field ne '')));
+    if (defined $self->$field && ( $self->$field ne '')  ) {
+      return 0 unless ($self->$field eq $other->$field);
     }
   }
   my @objs = qw(
