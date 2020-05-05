@@ -100,7 +100,7 @@ sub wrap_call( $% ) {
     $self->passphrase("\n") unless $self->passphrase();
 
     my $needs_passphrase_handled
-        = ( $self->passphrase() and not $handles->passphrase() ) ? 1 : 0;
+        = ( $self->passphrase() =~ m/\S/ and not $handles->passphrase() ) ? 1 : 0;
 
     if ($needs_passphrase_handled) {
         $handles->passphrase( IO::Handle->new() );
