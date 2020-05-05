@@ -39,9 +39,6 @@ use vars qw( @ISA           @EXPORT
               texts                  file_match
             );
 
-$gnupg = GnuPG::Interface->new( passphrase => 'test' );
-
-
 my $homedir;
 if (-f "test/gnupghome") {
   my $record = IO::File->new( "< test/gnupghome" );
@@ -54,6 +51,9 @@ if (-f "test/gnupghome") {
   $record->close();
 }
 
+$ENV{'GNUPGHOME'} = $homedir;
+
+$gnupg = GnuPG::Interface->new( passphrase => 'test' );
 $gnupg->options->hash_init( homedir              => $homedir,
                             armor                => 1,
                             meta_interactive     => 0,

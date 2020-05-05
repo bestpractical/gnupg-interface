@@ -10,13 +10,12 @@ use Cwd;
 use File::Path qw (make_path);
 use File::Copy;
 
-# $gnupg->options->debug_level(4);
-# $gnupg->options->logger_file("/tmp/gnupg-$$-setup-".time().".log");
-
 TEST
 {
     my $homedir = $gnupg->options->homedir();
     make_path($homedir, { mode => 0700 });
+
+    copy('test/gpg.conf', $homedir . '/gpg.conf');
 
     if ($gnupg->cmp_version($gnupg->version, '2.2') >= 0 and $ENV{TEST_USE_GPG_AGENT}) {
         my $agentconf = IO::File->new( "> " . $homedir . "/gpg-agent.conf" );
@@ -27,22 +26,22 @@ TEST
                 "pinentry-program " . getcwd() . "/test/fake-pinentry.pl\n"
             );
         $agentconf->close();
-        copy('test/gpg.conf', $homedir . '/gpg.conf');
 
-        # In classic gpg, gpgconf cannot kill gpg-agent. But these tests
-        # will not start an agent when using classic gpg. For modern gpg,
-        # reset the state of any long-lived gpg-agent, ignoring errors:
-	$ENV{'GNUPGHOME'} = $homedir;
-	my $error = system('gpgconf', '--quiet', '--kill', 'gpg-agent', ' > /tmp/gpgconf.log  2> /tmp/gpgconf.error_log');
-        if ($error) {
-            warn "gpgconf returned error : $error";
-        }
-        $error = system('gpg-connect-agent', 'reloadagent', '/bye');
+        my $error = system("gpg-connect-agent", "--homedir", "$homedir", '/bye');
         if ($error) {
             warn "gpg-connect-agent returned error : $error";
         }
 
-	delete $ENV{'GNUPGHOME'};
+        $error = system('gpg-connect-agent', "--homedir", "$homedir", 'reloadagent', '/bye');
+        if ($error) {
+            warn "gpg-connect-agent returned error : $error";
+        }
+
+        $error = system("gpg-agent", '--homedir', "$homedir");
+        if ($error) {
+            warn "gpg-agent returned error : $error";
+        }
+
     }
     reset_handles();
 

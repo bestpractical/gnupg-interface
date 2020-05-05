@@ -18,10 +18,11 @@ TEST
     # respect the GNUPGHOME environment variable
     if ($gnupg->cmp_version($gnupg->version, '2.1') >= 0) {
         $ENV{'GNUPGHOME'} = $homedir;
-        system('gpgconf', '--quiet', '--kill', 'gpg-agent');
+        system('gpgconf', '--homedir', $homedir, '--quiet', '--kill', 'gpg-agent');
         delete $ENV{'GNUPGHOME'};
     }
     remove_tree($homedir, {error => \$err});
     unlink('test/gnupghome');
+    unlink($homedir);
     return ! @$err;
 };
