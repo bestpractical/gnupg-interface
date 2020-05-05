@@ -73,6 +73,7 @@ TEST
     $handles->stdout( $texts{temp}->fh() );
     $handles->options( 'stdout' )->{direct} = 1;
 
+    $handles->clear_passphrase();
     $gnupg->clear_passphrase();
 
     my $pid = $gnupg->decrypt( handles => $handles );
