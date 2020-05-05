@@ -218,5 +218,40 @@ TEST
 
 TEST
 {
+    # Some versions of GnuPG 2.2.x give same user_id and validity for expired sig as 1.4
+    # this forces them to be consistent and still test them with 2.2 codepath
+    no warnings qw(redefine once);
+    local *GnuPG::Signature::compare = sub {
+        my ($self, $other) = @_;
+        if ($gnupg->cmp_version($gnupg->version, '2.2') > 0) {
+            if ( defined $self->user_id_string and
+                     $self->user_id_string eq 'Frank J. Tobin <ftobin@neverending.org>') {
+                $self->user_id_string('');
+                $self->validity('?');
+            }
+        }
+
+        my @compared_fields = qw(
+                                    validity
+                                    algo_num
+                                    hex_id
+                                    date
+                                    date_string
+                                    sig_class
+                                    is_exportable
+                            );
+
+        foreach my $field ( @compared_fields ) {
+            return 0 unless $self->$field eq $other->$field;
+        }
+        # check for expiration if present?
+        return 0 unless (defined $self->expiration_date) == (defined $other->expiration_date);
+        if (defined $self->expiration_date) {
+            return 0 unless (($self->expiration_date == $other->expiration_date) ||
+                                 ($self->expiration_date_string eq $other->expiration_date_string));
+        }
+        return 1;
+    };
+
     $handmade_key->compare( $given_key, 1 );
 };
