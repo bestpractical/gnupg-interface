@@ -1203,6 +1203,11 @@ The following setup can be done before any of the following examples:
                               meta_interactive => 0 ,
                             );
 
+   $gnupg->options->debug_level(4);
+
+   $gnupg->options->logger_file("/tmp/gnupg-$$-decrypt-".time().".log");
+
+
 =head2 Encrypting
 
   # We'll let the standard error of GnuPG pass through
