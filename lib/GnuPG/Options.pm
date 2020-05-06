@@ -36,6 +36,8 @@ use constant BOOLEANS => qw(
     meta_pgp_2_compatible
     meta_interactive
     ignore_mdc_error
+    keyring
+    no_default_keyring
 );
 
 use constant SCALARS => qw(
@@ -167,6 +169,8 @@ sub get_option_args {
     push @args, '--logger-file', $self->logger_file() if ($self->logger_file());
 
     push @args, '--ignore-mdc-error' if ($self->ignore_mdc_error());
+    push @args, '--keyring' if ( $self->keyring() );
+    push @args, '--no-default-keyring' if ( $self->no_default_keyring() );
 
     return @args;
 }
