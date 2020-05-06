@@ -17,7 +17,7 @@ TEST
 
     copy('test/gpg.conf', $homedir . '/gpg.conf');
 
-    if ($gnupg->cmp_version($gnupg->version, '2.2') >= 0 and $ENV{TEST_USE_GPG_AGENT}) {
+    if ($gnupg->cmp_version($gnupg->version, '2.2') >= 0) {
         my $agentconf = IO::File->new( "> " . $homedir . "/gpg-agent.conf" );
         # Classic gpg can't use loopback pinentry programs like fake-pinentry.pl.
         $agentconf->write(
