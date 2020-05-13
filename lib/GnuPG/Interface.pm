@@ -1421,12 +1421,23 @@ one should all B<wait> to clean up GnuPG from the process table.
 
 =head1 BUGS
 
+=head2 Large Amounts of Data
+
 Currently there are problems when transmitting large quantities
 of information over handles; I'm guessing this is due
 to buffering issues.  This bug does not seem specific to this package;
 IPC::Open3 also appears affected.
 
-I don't know yet how well this modules handles parsing OpenPGP v3 keys.
+=head2 OpenPGP v3 Keys
+
+I don't know yet how well this module handles parsing OpenPGP v3 keys.
+
+=head2 RHEL 7 Test Failures
+
+Testing with the updates for version 1.00 we saw intermittent test failures
+on RHEL 7 with GnuPG version 2.2.20. In some cases the tests would all pass
+for several runs, then one would fail. We're unable to reliably reproduce
+this so we would be interested in feedback from other users.
 
 =head1 SEE ALSO
 
