@@ -1,4 +1,4 @@
-push @INC, '.';
+BEGIN{push @INC, '.';}
 use strict;
 use warnings;
 use inc::Module::Install;
