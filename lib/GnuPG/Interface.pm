@@ -28,7 +28,7 @@ use Math::BigInt try => 'GMP';
 use GnuPG::Options;
 use GnuPG::Handles;
 
-$VERSION = '0.52';
+$VERSION = '1.00';
 
 has $_ => (
     isa     => 'Any',
@@ -1444,7 +1444,7 @@ under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-GnuPG::Interface is currently maintained by Jesse Vincent <jesse@cpan.org>.
+GnuPG::Interface is currently maintained by Best Practical Solutions <BPS@cpan.org>.
 
 Frank J. Tobin, ftobin@cpan.org was the original author of the package.
 
