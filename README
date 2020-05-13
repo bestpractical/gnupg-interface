@@ -67,6 +67,18 @@ DESCRIPTION
     handles appropriately, as described in "Bidirectional Communication with
     Another Process" in perlipc.
 
+GnuPG Versions
+    As of this version of GnuPG::Interface, there are two supported versions
+    of GnuPG: 1.4.x and 2.2.x. The GnuPG download page
+    <https://gnupg.org/download/index.html> has updated information on the
+    currently supported versions.
+
+    GnuPG released 2.0 and 2.1 versions in the past and some packaging
+    systems may still provide these if you install the default "gpg",
+    "gnupg", "gnupg2", etc. packages. This modules supports only version
+    2.2.x, so you may need to find additional package repositories or build
+    from source to get the updated version.
+
 OBJECT METHODS
   Initialization Methods
     new( *%initialization_args* )
@@ -154,8 +166,8 @@ OBJECT METHODS
         the passphrase data member of the handles object is defined, then
         GnuPG::Interface assumes that access and control over the secret key
         will be handled by the running gpg-agent process. This represents
-        the simplest mode of operation with the GnuPG "modern" suite
-        (version 2.1 and later). It is also the preferred mode for tools
+        the simplest mode of operation with the GnuPG "stable" suite
+        (version 2.2 and later). It is also the preferred mode for tools
         intended to be user-facing, since the user will be prompted directly
         by gpg-agent for use of the secret key material. Note that for
         programmatic use, this mode requires the gpg-agent and pinentry to
@@ -244,6 +256,10 @@ EXAMPLES
                                                   '0xABCD1234ABCD1234ABCD1234ABCD1234ABCD1234' ],
                                   meta_interactive => 0 ,
                                 );
+
+       $gnupg->options->debug_level(4);
+
+       $gnupg->options->logger_file("/tmp/gnupg-$$-decrypt-".time().".log");
 
   Encrypting
       # We'll let the standard error of GnuPG pass through

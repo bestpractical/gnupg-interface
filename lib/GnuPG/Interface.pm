@@ -963,6 +963,19 @@ B<clearsign>.  One then interacts with with the handles
 appropriately, as described in
 L<perlipc/"Bidirectional Communication with Another Process">.
 
+=head1 GnuPG Versions
+
+As of this version of GnuPG::Interface, there are two supported
+versions of GnuPG: 1.4.x and 2.2.x. The
+L<GnuPG download page|https://gnupg.org/download/index.html> has
+updated information on the currently supported versions.
+
+GnuPG released 2.0 and 2.1 versions in the past and some packaging
+systems may still provide these if you install the default C<gpg>,
+C<gnupg>, C<gnupg2>, etc. packages. This modules supports only
+version 2.2.x, so you may need to find additional package
+repositories or build from source to get the updated version.
+
 =head1 OBJECT METHODS
 
 =head2 Initialization Methods
