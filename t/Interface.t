@@ -24,6 +24,12 @@ TEST
 # deprecation test
 TEST
 {
-    $gnupg->gnupg_call( $v2 );
+    # We wrap the next call in an "eval" because
+    # setting call tries to execute the program
+    # to figure out the version, which will
+    # fail if "gnupg" is not found... but we
+    # don't care about the version for the
+    # purpose of this test.
+    eval { $gnupg->gnupg_call( $v2 ); };
     $gnupg->call() eq $v2;
 };
