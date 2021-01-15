@@ -27,6 +27,7 @@ use IO::Handle;
 use Math::BigInt try => 'GMP';
 use GnuPG::Options;
 use GnuPG::Handles;
+use Scalar::Util 'tainted';
 
 $VERSION = '1.00';
 
@@ -343,6 +344,7 @@ sub fork_attach_exec( $% ) {
             @commands,     @command_args
         );
 
+        local $ENV{PATH} if tainted $ENV{PATH};
         exec @command or die "exec() error: $ERRNO";
     }
 
