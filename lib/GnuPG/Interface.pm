@@ -336,6 +336,13 @@ sub fork_attach_exec( $% ) {
         }
 
         my @args = $self->options->get_args();
+
+        # Get around a bug in 2.2, see also https://dev.gnupg.org/T4667
+        # this covers both --delete-secret-key(s) and --delete-secret-and-public-key(s)
+        if ( $self->version && $self->cmp_version( $self->version, 2.2 ) >= 0 && $commands[0] =~ /^--delete-secret-.*keys?$/ ) {
+            push @args, '--yes';
+        }
+
         push @args, '--pinentry-mode', 'loopback'
           if $use_loopback_pinentry;
 
