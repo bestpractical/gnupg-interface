@@ -27,5 +27,6 @@ requires:
   MooX::late: '0.014'
   Scalar::Util: 0
 resources:
+  bugtracker: https://github.com/bestpractical/gnupg-interface/issues
   license: http://dev.perl.org/licenses/
 version: '1.02'
