@@ -167,4 +167,16 @@ sub get_expired_test_sig_params {
     return %sig_params
 }
 
+# determine whether this GnuPG version reports on the "RENC" key usage
+# flag, which was added in 2.3.8 and 2.2.42 (see upstream
+# e4f61df8509e7aff0628971d9ea8fe967cd0f416)
+sub get_supported_renc {
+  my $gnupg = shift;
+  my $version = $gnupg->version;
+
+  return (($gnupg->cmp_version($version, '2.3.8') >= 0) ||
+          (($gnupg->cmp_version($version, '2.3') < 0) &&
+           ($gnupg->cmp_version($version, '2.2.42') >= 0)));
+}
+
 1;

@@ -51,11 +51,11 @@ TEST
     elsif ( $gnupg->cmp_version( $gnupg->version, '2.1.11' ) <= 0 ) {
         $keylist = '1';
     }
-    elsif ( $gnupg->cmp_version( $gnupg->version, '2.3.8' ) < 0 ) {
-        $keylist = '2.2';
+    elsif ( get_supported_renc( $gnupg ) ) {
+        $keylist = '2';
     }
     else {
-        $keylist = '2';
+        $keylist = '2.2';
     }
 
 
