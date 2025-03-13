@@ -232,7 +232,6 @@ TEST
         }
 
         my @compared_fields = qw(
-                                    validity
                                     algo_num
                                     hex_id
                                     date
@@ -244,6 +243,11 @@ TEST
         foreach my $field ( @compared_fields ) {
             return 0 unless $self->$field eq $other->$field;
         }
+        return 0 unless $self->validity eq $other->validity ||
+          ($self->validity eq '?!' &&
+           ($other->validity eq '!' ||
+            $other->validity eq '?' ||
+            $other->validity eq '%'));
         # check for expiration if present?
         return 0 unless (defined $self->expiration_date) == (defined $other->expiration_date);
         if (defined $self->expiration_date) {
