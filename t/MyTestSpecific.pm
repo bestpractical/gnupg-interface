@@ -158,7 +158,7 @@ sub get_expired_test_sig_params {
     );
     if ($gnupg->cmp_version($gnupg->version, '2.2') > 0) {
         $sig_params{user_id_string} = '';
-        $sig_params{validity} = '?';
+        $sig_params{validity} = '?!';
     }
     else {
         $sig_params{user_id_string} = 'Frank J. Tobin <ftobin@neverending.org>',
