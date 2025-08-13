@@ -24,6 +24,19 @@ TEST
     return 0 unless @returned_keys == 1;
 
     $given_key = shift @returned_keys;
+    # Signatures of expired keys might show as "?" in some versions of 2.2+.
+    # Most versions show them as '?', while 2.4.8 shows them as '!'.
+    my $varied_validity;
+    for my $user_id ( @{$given_key->user_ids} ) {
+        for my $signature ( @{$user_id->signatures} ) {
+            if ( $signature->hex_id eq '56FFD10A260C4FA3' ) {
+                $varied_validity = $signature->validity;
+                last;
+            }
+        }
+    }
+    # It's supposed to be ? or !
+    return 0 unless $varied_validity eq '?' || $varied_validity eq '!';
 
     my $pubkey_data = [
      Math::BigInt->from_hex('0x'.
@@ -74,7 +87,7 @@ TEST
                             date_string => '2000-03-16',
                             hex_id => '56FFD10A260C4FA3',
                             sig_class => 0x10,
-                            validity => '!'),
+                            validity => $varied_validity),
       GnuPG::Signature->new(
                             date => 949813093,
                             algo_num => 17,
@@ -115,7 +128,7 @@ TEST
                             date_string => '2000-03-16',
                             hex_id => '56FFD10A260C4FA3',
                             sig_class => 0x10,
-                            validity => '!'),
+                            validity => $varied_validity),
       GnuPG::Signature->new(
                             date => 953179891,
                             algo_num => 17,
@@ -191,7 +204,8 @@ TEST
         hex_id                   => 'ADB99D9C2E854A6B',
         creation_date            => 949813119,
         creation_date_string     => '2000-02-06',
-        usage_flags              => $gnupg->cmp_version($gnupg->version, '2.3.8') >= 0 ? 'er' : 'e',
+        usage_flags => $gnupg->cmp_version( $gnupg->version, '2.4.0' ) > 0
+            && $gnupg->cmp_version( $gnupg->version, '2.4.6' ) < 0 ? 'er' : 'e',
         pubkey_data              => $subkey_pub_data,
       );
 
