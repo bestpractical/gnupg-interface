@@ -25,6 +25,7 @@ requires 'Math::BigInt' => '1.78';
 requires 'Fatal';
 requires 'Scalar::Util';
 license 'perl';
+resources 'bugtracker' => 'https://github.com/bestpractical/gnupg-interface/issues';
 
 
 sign();
