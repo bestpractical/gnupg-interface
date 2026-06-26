@@ -825,7 +825,10 @@ sub _version {
     my ( $self ) = @_;
 
     my $out = IO::Handle->new;
-    my $handles = GnuPG::Handles->new( stdout => $out );
+    my $handles = GnuPG::Handles->new(
+        stdout => $out,
+        stdin  => IO::Handle->new,
+    );
     my $pid = $self->wrap_call( commands => [ '--no-options', '--version' ], handles => $handles );
     my $line = $out->getline;
     $line =~ /(\d+\.\d+\.\d+)/;
